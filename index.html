@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SAFİR PULSE — Konkasör Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f172a;--surface:#1e293b;--border:#334155;--text:#e2e8f0;--muted:#64748b;
+      --green:#22c55e;--yellow:#f59e0b;--red:#ef4444;--blue:#3b82f6;--purple:#8b5cf6}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+
+.header{background:#0a1628;border-bottom:1px solid var(--border);padding:14px 24px;
+        display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.header-brand{display:flex;align-items:center;gap:10px}
+.header-brand h1{font-size:18px;font-weight:700}
+.header-meta{font-size:12px;color:var(--muted);text-align:right;line-height:1.8}
+.header-meta strong{color:var(--text)}
+
+.summary-bar{display:flex;gap:12px;padding:16px 24px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.stat-card{background:var(--surface);border-radius:10px;padding:12px 20px;text-align:center;
+           min-width:100px;border:1px solid var(--border)}
+.stat-val{font-size:22px;font-weight:700;display:block;line-height:1.2}
+.stat-lbl{font-size:11px;color:var(--muted);display:block;margin-top:3px}
+
+.alerts{padding:14px 24px;display:flex;gap:10px;flex-wrap:wrap}
+.alert-card{background:#1a1212;border:1px solid #ef444444;border-radius:8px;padding:10px 14px;
+            display:flex;align-items:flex-start;gap:10px;min-width:220px;flex:1}
+.alert-card.warn{background:#1a1500;border-color:#f59e0b44}
+.alert-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.alert-title{font-size:13px;font-weight:700;color:var(--red);margin-bottom:2px}
+.alert-card.warn .alert-title{color:var(--yellow)}
+.alert-desc{font-size:11px;color:#94a3b8;line-height:1.5}
+
+.nav-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;
+         display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid var(--border);
+     cursor:pointer;transition:all .12s;font-family:inherit;background:var(--surface);color:var(--muted)}
+.btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn.active-type{background:var(--purple);color:#fff;border-color:var(--purple)}
+.vr{width:1px;height:20px;background:var(--border);margin:0 4px;flex-shrink:0}
+.nav-count{font-size:12px;color:var(--muted);margin-left:auto}
+
+.main-content{display:flex;min-height:calc(100vh - 340px)}
+.grid-section{flex:1;padding:20px 24px;min-width:0}
+.section-title{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;
+               letter-spacing:.5px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.makine-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+
+.mk{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;
+    transition:border-color .15s,filter .15s;cursor:default}
+.mk:hover{border-color:var(--blue);filter:brightness(1.08)}
+.mk.pasif{opacity:.65}
+.mk.alert-h{border-color:#ef444466}
+
+.mk-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.mk-ikon{font-size:26px;line-height:1;flex-shrink:0}
+.mk-info{flex:1;min-width:0}
+.mk-model{font-weight:700;font-size:14px}
+.mk-alt{font-size:11px;color:var(--muted);margin-top:2px}
+.mk-badge{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
+
+.mk-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.mk-s{text-align:center}
+.mk-sv{font-size:16px;font-weight:700;display:block}
+.mk-sl{font-size:10px;color:var(--muted);display:block;margin-top:1px}
+
+.rol-bar{height:4px;background:var(--border);border-radius:2px;margin-bottom:8px}
+.rol-fill{height:100%;border-radius:2px}
+
+.mk-bot{display:flex;justify-content:space-between;align-items:center;
+        padding-top:8px;border-top:1px solid var(--border)}
+.lok{font-size:11px;color:var(--muted)}
+.lok strong{color:#94a3b8}
+.ts-cost{font-size:12px;font-weight:600;color:var(--blue)}
+
+.sidebar{width:340px;flex-shrink:0;border-left:1px solid var(--border);padding:20px;
+         display:flex;flex-direction:column;gap:20px}
+.chart-wrap{background:var(--surface);border-radius:10px;padding:16px}
+.chart-title{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:12px;
+             text-transform:uppercase;letter-spacing:.5px}
+
+.sehir-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.sehir-tbl th{color:var(--muted);font-weight:600;padding:6px 8px;text-align:left;border-bottom:1px solid var(--border)}
+.sehir-tbl td{padding:7px 8px;border-bottom:1px solid #1e293b;color:var(--text)}
+.sehir-tbl tr:last-child td{border-bottom:none}
+
+.footer{text-align:center;padding:14px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)}
+
+.hidden{display:none!important}
+
+@media(max-width:900px){
+  .main-content{flex-direction:column}
+  .sidebar{width:100%;border-left:none;border-top:1px solid var(--border)}
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-brand">
+    <span style="font-size:22px">🪨</span>
+    <h1>SAFİR PULSE — Konkasör &amp; Elek Filosu</h1>
+  </div>
+  <div class="header-meta">
+    <strong>Dönem:</strong> Ocak–Şubat 2026 &nbsp;|&nbsp;
+    <strong>Son Güncelleme:</strong> 08.04.2026<br>
+    <strong>Kaynak:</strong> VisionLink + Saha Raporu &nbsp;|&nbsp; 15 makine
+  </div>
+</header>
+
+<div class="summary-bar">
+  <div class="stat-card"><span class="stat-val" style="color:#e2e8f0">15</span><span class="stat-lbl">Toplam Makine</span></div>
+  <div class="stat-card"><span class="stat-val" style="color:#22c55e">12</span><span class="stat-lbl">Aktif</span></div>
+  <div class="stat-card"><span class="stat-val" style="color:#ef4444">3</span><span class="stat-lbl">Pasif</span></div>
+  <div class="stat-card"><span class="stat-val" style="color:#60a5fa">1.099</span><span class="stat-lbl">Oca Toplam Saat</span></div>
+  <div class="stat-card"><span class="stat-val" style="color:#60a5fa">1.037</span><span class="stat-lbl">Şub Toplam Saat</span></div>
+  <div class="stat-card"><span class="stat-val" style="color:#f59e0b">1.464.561</span><span class="stat-lbl">TS Gideri (TL)</span></div>
+  <div class="stat-card"><span class="stat-val" style="color:#8b5cf6">51.750</span><span class="stat-lbl">AT/SM Gideri (TL)</span></div>
+</div>
+
+<div class="alerts">
+  <div class="alert-card">
+    <div class="alert-icon">🚨</div>
+    <div><div class="alert-title">E1 — Yüksek Rölanti %39,1</div>
+    <div class="alert-desc">Filonun en yüksek bekleme süresi. Ocak ayında 29 sa çalışmaya karşın operatör rölantisi kritik — incelenmeli.</div></div>
+  </div>
+  <div class="alert-card">
+    <div class="alert-icon">🚨</div>
+    <div><div class="alert-title">K9 — Şubat TS: 348.148 TL</div>
+    <div class="alert-desc">Dönemin tek makine için en yüksek teknik servis gideri. KLEEMAN EVO YENİ, Maraş/AHES sahasında.</div></div>
+  </div>
+  <div class="alert-card">
+    <div class="alert-icon">🚨</div>
+    <div><div class="alert-title">K4 — Şubat TS: 274.500 TL</div>
+    <div class="alert-desc">METSO çeneli konkasör iki ayda toplam 312.508 TL TS gideri üretti. İstanbul/Entegre sahası.</div></div>
+  </div>
+  <div class="alert-card warn">
+    <div class="alert-icon">⚠️</div>
+    <div><div class="alert-title">E3 · K6 — İki Ayda Pasif</div>
+    <div class="alert-desc">Maraş/AHES ve Maraş/Nuryol lokasyonlarında sıfır çalışma saati. Saha kontrolü gerekli.</div></div>
+  </div>
+</div>
+
+<div class="nav-bar">
+  <button class="btn active" data-sehir="tümü" onclick="filtrele(this,'sehir')">Tümü</button>
+  <button class="btn" data-sehir="Hatay"    onclick="filtrele(this,'sehir')">📍 Hatay/İskenderun</button>
+  <button class="btn" data-sehir="Maraş"    onclick="filtrele(this,'sehir')">📍 Maraş/AHES</button>
+  <button class="btn" data-sehir="İstanbul" onclick="filtrele(this,'sehir')">📍 İstanbul/Entegre</button>
+  <button class="btn" data-sehir="Bursa"    onclick="filtrele(this,'sehir')">📍 Bursa/Karacabey</button>
+  <div class="vr"></div>
+  <button class="btn active-type" data-tur="tümü"     onclick="filtrele(this,'tur')">Tüm Tipler</button>
+  <button class="btn" data-tur="Konkasör" onclick="filtrele(this,'tur')">🪨 Konkasör</button>
+  <button class="btn" data-tur="Elek"     onclick="filtrele(this,'tur')">🔲 Elek</button>
+  <button class="btn" data-tur="Konveyor" onclick="filtrele(this,'tur')">🔗 Konveyor</button>
+  <span class="nav-count" id="sayac">15 makine</span>
+</div>
+
+<div class="main-content">
+  <div class="grid-section">
+    <div class="section-title">Makine Listesi</div>
+    <div class="makine-grid" id="grid">
+
+      <!-- K3 -->
+      <div class="mk" data-sehir="Hatay" data-tur="Konkasör">
+        <div class="mk-top">
+          <span class="mk-ikon">🪨</span>
+          <div class="mk-info"><div class="mk-model">METSO LT1213S <span style="color:#475569;font-size:11px;font-weight:400">K3</span></div><div class="mk-alt">Konkasör · 2024</div></div>
+          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
+        </div>
+        <div class="mk-stats">
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">189</span><span class="mk-sl">Oca (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">108</span><span class="mk-sl">Şub (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#22c55e">%9,5</span><span class="mk-sl">Rölanti (Oca)</span></div>
+        </div>
+        <div class="rol-bar"><div class="rol-fill" style="width:15.8%;background:#22c55e"></div></div>
+        <div class="mk-bot"><div class="lok">📍 <strong>Hatay/İskenderun</strong></div><div class="ts-cost">TS: 110.037 TL</div></div>
+      </div>
+
+      <!-- K1 -->
+      <div class="mk" data-sehir="Hatay" data-tur="Konkasör">
+        <div class="mk-top">
+          <span class="mk-ikon">🪨</span>
+          <div class="mk-info"><div class="mk-model">METSO LT1213 <span style="color:#475569;font-size:11px;font-weight:400">K1</span></div><div class="mk-alt">Konkasör · 2015</div></div>
+          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
+        </div>
+        <div class="mk-stats">
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">70</span><span class="mk-sl">Oca (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">109</span><span class="mk-sl">Şub (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#22c55e">%3,2</span><span class="mk-sl">Rölanti (Oca)</span></div>
+        </div>
+        <div class="rol-bar"><div class="rol-fill" style="width:5.3%;background:#22c55e"></div></div>
+        <div class="mk-bot"><div class="lok">📍 <strong>Hatay/İskenderun</strong></div><div class="ts-cost">TS: 26.026 TL</div></div>
+      </div>
+
+      <!-- B1 -->
+      <div class="mk" data-sehir="Hatay" data-tur="Konveyor">
+        <div class="mk-top">
+          <span class="mk-ikon">🔗</span>
+          <div class="mk-info"><div class="mk-model">KLEEMAN KONVEYOR <span style="color:#475569;font-size:11px;font-weight:400">B1</span></div><div class="mk-alt">Konveyor · 2024</div></div>
+          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
+        </div>
+        <div class="mk-stats">
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">180</span><span class="mk-sl">Oca (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">120</span><span class="mk-sl">Şub (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#22c55e">%2,8</span><span class="mk-sl">Rölanti (Oca)</span></div>
+        </div>
+        <div class="rol-bar"><div class="rol-fill" style="width:4.7%;background:#22c55e"></div></div>
+        <div class="mk-bot"><div class="lok">📍 <strong>Hatay/İskenderun</strong></div><div class="ts-cost">TS: 69.588 TL</div></div>
+      </div>
+
+      <!-- E1 — ALERT -->
+      <div class="mk alert-h" data-sehir="Hatay" data-tur="Elek">
+        <div class="mk-top">
+          <span class="mk-ikon">🔲</span>
+          <div class="mk-info"><div class="mk-model">METSO ELEK <span style="color:#475569;font-size:11px;font-weight:400">E1</span></div><div class="mk-alt">Elek · 2016</div></div>
+          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
+        </div>
+        <div class="mk-stats">
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">29</span><span class="mk-sl">Oca (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">39</span><span class="mk-sl">Şub (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#ef4444">%39,1 ⚠</span><span class="mk-sl">Rölanti (Oca)</span></div>
+        </div>
+        <div class="rol-bar"><div class="rol-fill" style="width:65%;background:#ef4444"></div></div>
+        <div class="mk-bot"><div class="lok">📍 <strong>Hatay/İskenderun</strong></div><div class="ts-cost">TS: 9.413 TL</div></div>
+      </div>
+
+      <!-- K9 — ALERT -->
+      <div class="mk alert-h" data-sehir="Maraş" data-tur="Konkasör">
+        <div class="mk-top">
+          <span class="mk-ikon">🪨</span>
+          <div class="mk-info"><div class="mk-model">KLEEMAN EVO YENİ <span style="color:#475569;font-size:11px;font-weight:400">K9</span></div><div class="mk-alt">Konkasör · 2023</div></div>
+          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
+        </div>
+        <div class="mk-stats">
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">165</span><span class="mk-sl">Oca (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">55</span><span class="mk-sl">Şub (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#22c55e">%4,1</span><span class="mk-sl">Rölanti (Oca)</span></div>
+        </div>
+        <div class="rol-bar"><div class="rol-fill" style="width:6.8%;background:#22c55e"></div></div>
+        <div class="mk-bot"><div class="lok">📍 <strong>Maraş/AHES</strong></div><div class="ts-cost" style="color:#ef4444">TS: 399.398 TL ⚠</div></div>
+      </div>
+
+      <!-- K2 -->
+      <div class="mk" data-sehir="Maraş" data-tur="Konkasör">
+        <div class="mk-top">
+          <span class="mk-ikon">🪨</span>
+          <div class="mk-info"><div class="mk-model">METSO LT1213 <span style="color:#475569;font-size:11px;font-weight:400">K2</span></div><div class="mk-alt">Konkasör · 2022</div></div>
+          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
+        </div>
+        <div class="mk-stats">
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">128</span><span class="mk-sl">Oca (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">33</span><span class="mk-sl">Şub (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#22c55e">%5,4</span><span class="mk-sl">Rölanti (Oca)</span></div>
+        </div>
+        <div class="rol-bar"><div class="rol-fill" style="width:9%;background:#22c55e"></div></div>
+        <div class="mk-bot"><div class="lok">📍 <strong>Maraş + Hatay</strong></div><div class="ts-cost">TS: 189.175 TL</div></div>
+      </div>
+
+      <!-- K8 -->
+      <div class="mk" data-sehir="Maraş" data-tur="Konkasör">
+        <div class="mk-top">
+          <span class="mk-ikon">🪨</span>
+          <div class="mk-info"><div class="mk-model">KLEEMAN MC110I EVO2 <span style="color:#475569;font-size:11px;font-weight:400">K8</span></div><div class="mk-alt">Konkasör · 2025</div></div>
+          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
+        </div>
+        <div class="mk-stats">
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">121</span><span class="mk-sl">Oca (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">93</span><span class="mk-sl">Şub (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#22c55e">%4,9</span><span class="mk-sl">Rölanti (Oca)</span></div>
+        </div>
+        <div class="rol-bar"><div class="rol-fill" style="width:8.2%;background:#22c55e"></div></div>
+        <div class="mk-bot"><div class="lok">📍 <strong>Maraş/AHES</strong></div><div class="ts-cost">TS: 153.455 TL</div></div>
+      </div>
+
+      <!-- K7 -->
+      <div class="mk" data-sehir="Maraş" data-tur="Konkasör">
+        <div class="mk-top">
+          <span class="mk-ikon">🪨</span>
+          <div class="mk-info"><div class="mk-model">KLEEMAN EVO ESKİ <span style="color:#475569;font-size:11px;font-weight:400">K7</span></div><div class="mk-alt">Konkasör · 2023</div></div>
+          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
+        </div>
+        <div class="mk-stats">
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">58</span><span class="mk-sl">Oca (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">41</span><span class="mk-sl">Şub (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#f59e0b">%9,1</span><span class="mk-sl">Rölanti (Oca)</span></div>
+        </div>
+        <div class="rol-bar"><div class="rol-fill" style="width:15.2%;background:#f59e0b"></div></div>
+        <div class="mk-bot"><div class="lok">📍 <strong>Maraş/AHES</strong></div><div class="ts-cost">TS: 40.825 TL</div></div>
+      </div>
+
+      <!-- K5 -->
+      <div class="mk" data-sehir="Bursa" data-tur="Konkasör">
+        <div class="mk-top">
+          <span class="mk-ikon">🪨</span>
+          <div class="mk-info"><div class="mk-model">KLEEMAN KONKASÖR PRO <span style="color:#475569;font-size:11px;font-weight:400">K5</span></div><div class="mk-alt">Konkasör · 2024</div></div>
+          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
+        </div>
+        <div class="mk-stats">
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">71</span><span class="mk-sl">Oca (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">71</span><span class="mk-sl">Şub (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#22c55e">%4,2</span><span class="mk-sl">Rölanti (Oca)</span></div>
+        </div>
+        <div class="rol-bar"><div class="rol-fill" style="width:7%;background:#22c55e"></div></div>
+        <div class="mk-bot"><div class="lok">📍 <strong>Bursa/Karacabey</strong></div><div class="ts-cost">TS: 36.344 TL</div></div>
+      </div>
+
+      <!-- E4 -->
+      <div class="mk" data-sehir="Bursa" data-tur="Elek">
+        <div class="mk-top">
+          <span class="mk-ikon">🔲</span>
+          <div class="mk-info"><div class="mk-model">KLEEMAN ELEK K155 <span style="color:#475569;font-size:11px;font-weight:400">E4</span></div><div class="mk-alt">Elek · 2025</div></div>
+          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
+        </div>
+        <div class="mk-stats">
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">67</span><span class="mk-sl">Oca (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">129</span><span class="mk-sl">Şub (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#f59e0b">%18,3</span><span class="mk-sl">Rölanti (Oca)</span></div>
+        </div>
+        <div class="rol-bar"><div class="rol-fill" style="width:30.5%;background:#f59e0b"></div></div>
+        <div class="mk-bot"><div class="lok">📍 <strong>Bursa/Karacabey</strong></div><div class="ts-cost">TS: 59.133 TL</div></div>
+      </div>
+
+      <!-- K4 — ALERT -->
+      <div class="mk alert-h" data-sehir="İstanbul" data-tur="Konkasör">
+        <div class="mk-top">
+          <span class="mk-ikon">🪨</span>
+          <div class="mk-info"><div class="mk-model">METSO ÇENELİ <span style="color:#475569;font-size:11px;font-weight:400">K4</span></div><div class="mk-alt">Konkasör · 2011</div></div>
+          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
+        </div>
+        <div class="mk-stats">
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">11</span><span class="mk-sl">Oca (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">228</span><span class="mk-sl">Şub (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#22c55e">%6,8</span><span class="mk-sl">Rölanti (Oca)</span></div>
+        </div>
+        <div class="rol-bar"><div class="rol-fill" style="width:11.3%;background:#22c55e"></div></div>
+        <div class="mk-bot"><div class="lok">📍 <strong>İstanbul/Entegre</strong></div><div class="ts-cost" style="color:#ef4444">TS: 312.508 TL ⚠</div></div>
+      </div>
+
+      <!-- E2 -->
+      <div class="mk" data-sehir="İstanbul" data-tur="Elek">
+        <div class="mk-top">
+          <span class="mk-ikon">🔲</span>
+          <div class="mk-info"><div class="mk-model">KLEEMAN ELEK <span style="color:#475569;font-size:11px;font-weight:400">E2</span></div><div class="mk-alt">Elek · 2022</div></div>
+          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
+        </div>
+        <div class="mk-stats">
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">10</span><span class="mk-sl">Oca (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">227</span><span class="mk-sl">Şub (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#22c55e">%2,5</span><span class="mk-sl">Rölanti (Oca)</span></div>
+        </div>
+        <div class="rol-bar"><div class="rol-fill" style="width:4.2%;background:#22c55e"></div></div>
+        <div class="mk-bot"><div class="lok">📍 <strong>İstanbul/Entegre</strong></div><div class="ts-cost">TS: 56.762 TL</div></div>
+      </div>
+
+      <!-- E3 — PASİF -->
+      <div class="mk pasif" data-sehir="Maraş" data-tur="Elek">
+        <div class="mk-top">
+          <span class="mk-ikon">🔲</span>
+          <div class="mk-info"><div class="mk-model">MACC CLOSKY S80 <span style="color:#475569;font-size:11px;font-weight:400">E3</span></div><div class="mk-alt">Elek · 2016</div></div>
+          <div class="mk-badge"><span class="dot" style="background:#ef4444"></span><span style="font-size:11px;color:#ef4444;font-weight:600">Pasif</span></div>
+        </div>
+        <div class="mk-stats">
+          <div class="mk-s"><span class="mk-sv" style="color:#475569">0</span><span class="mk-sl">Oca (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#475569">0</span><span class="mk-sl">Şub (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#475569">—</span><span class="mk-sl">Rölanti</span></div>
+        </div>
+        <div class="mk-bot"><div class="lok">📍 <strong>Maraş/AHES</strong></div><div style="font-size:11px;color:#64748b">Saha kontrolü gerekli</div></div>
+      </div>
+
+      <!-- E5 — PASİF -->
+      <div class="mk pasif" data-sehir="Maraş" data-tur="Elek">
+        <div class="mk-top">
+          <span class="mk-ikon">🔲</span>
+          <div class="mk-info"><div class="mk-model">KLEEMAN ELEK EVO <span style="color:#475569;font-size:11px;font-weight:400">E5</span></div><div class="mk-alt">Elek · 2023</div></div>
+          <div class="mk-badge"><span class="dot" style="background:#f59e0b"></span><span style="font-size:11px;color:#f59e0b;font-weight:600">Kısmen</span></div>
+        </div>
+        <div class="mk-stats">
+          <div class="mk-s"><span class="mk-sv" style="color:#475569">0</span><span class="mk-sl">Oca (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">44</span><span class="mk-sl">Şub (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#22c55e">%3,0</span><span class="mk-sl">Rölanti (Şub)</span></div>
+        </div>
+        <div class="mk-bot"><div class="lok">📍 <strong>Maraş/AHES</strong></div><div style="font-size:11px;color:#64748b">Şubat'ta aktife geçmiş olabilir</div></div>
+      </div>
+
+      <!-- K6 — PASİF -->
+      <div class="mk pasif" data-sehir="Maraş" data-tur="Elek">
+        <div class="mk-top">
+          <span class="mk-ikon">🔲</span>
+          <div class="mk-info"><div class="mk-model">KLEEMAN SCALPER <span style="color:#475569;font-size:11px;font-weight:400">K6</span></div><div class="mk-alt">Elek/Scalper · 2023</div></div>
+          <div class="mk-badge"><span class="dot" style="background:#ef4444"></span><span style="font-size:11px;color:#ef4444;font-weight:600">Pasif</span></div>
+        </div>
+        <div class="mk-stats">
+          <div class="mk-s"><span class="mk-sv" style="color:#475569">0</span><span class="mk-sl">Oca (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#475569">0</span><span class="mk-sl">Şub (sa)</span></div>
+          <div class="mk-s"><span class="mk-sv" style="color:#475569">—</span><span class="mk-sl">Rölanti</span></div>
+        </div>
+        <div class="mk-bot"><div class="lok">📍 <strong>Maraş/Nuryol</strong></div><div style="font-size:11px;color:#64748b">İki ayda pasif — kontrol gerekli</div></div>
+      </div>
+
+    </div><!-- /grid -->
+  </div><!-- /grid-section -->
+
+  <!-- Yan panel -->
+  <aside class="sidebar">
+    <div class="chart-wrap">
+      <div class="chart-title">Ocak Çalışma Saatleri</div>
+      <canvas id="cSaat" height="200"></canvas>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">TS Maliyeti — Oca + Şub (TL)</div>
+      <canvas id="cTs" height="230"></canvas>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">Şehir Bazlı Özet — Ocak 2026</div>
+      <table class="sehir-tbl">
+        <thead><tr><th>Şehir</th><th>Makine</th><th>Saat</th></tr></thead>
+        <tbody>
+          <tr><td>Hatay/İskenderun</td><td>K3 K1 B1 E1</td><td style="color:#60a5fa;font-weight:600">468 sa</td></tr>
+          <tr><td>Maraş/AHES</td><td>K9 K2 K8 K7…</td><td style="color:#60a5fa;font-weight:600">472 sa</td></tr>
+          <tr><td>İstanbul/Entegre</td><td>K4 E2</td><td style="color:#60a5fa;font-weight:600">21 sa</td></tr>
+          <tr><td>Bursa/Karacabey</td><td>K5 E4</td><td style="color:#60a5fa;font-weight:600">138 sa</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">Rölanti Oranı — Ocak (%)</div>
+      <canvas id="cRol" height="200"></canvas>
+    </div>
+  </aside>
+</div>
+
+<footer class="footer">
+  SAFİR PULSE Filo Yönetim Sistemi &nbsp;·&nbsp; Konkasör &amp; Elek Filosu &nbsp;·&nbsp; Dönem: Ocak–Şubat 2026
+</footer>
+
+<script>
+// ── FİLTRELEME (DOM show/hide) ────────────────────────────────────────────────
+let aktifSehir = 'tümü', aktifTur = 'tümü';
+
+function filtrele(btn, tip) {
+  if (tip === 'sehir') {
+    aktifSehir = btn.dataset.sehir;
+    document.querySelectorAll('[data-sehir]').forEach(b => { if(b.tagName==='BUTTON') b.classList.remove('active'); });
+  } else {
+    aktifTur = btn.dataset.tur;
+    document.querySelectorAll('[data-tur]').forEach(b => { if(b.tagName==='BUTTON') b.classList.remove('active-type','active'); });
+  }
+  btn.classList.add(tip === 'sehir' ? 'active' : 'active-type');
+  let gorunen = 0;
+  document.querySelectorAll('#grid .mk').forEach(function(kart) {
+    const sehirOk = aktifSehir === 'tümü' || kart.dataset.sehir === aktifSehir;
+    const turOk   = aktifTur   === 'tümü' || kart.dataset.tur   === aktifTur;
+    if (sehirOk && turOk) { kart.classList.remove('hidden'); gorunen++; }
+    else                  { kart.classList.add('hidden'); }
+  });
+  document.getElementById('sayac').textContent = gorunen + ' makine';
+}
+
+// ── GRAFİKLER ─────────────────────────────────────────────────────────────────
+const opts = {
+  responsive:true, maintainAspectRatio:false,
+  plugins:{ legend:{ display:false } },
+  scales:{
+    x:{ ticks:{ color:'#64748b', font:{ size:10 } }, grid:{ color:'#1e293b' } },
+    y:{ ticks:{ color:'#64748b', font:{ size:10 } }, grid:{ color:'#1e293b' } },
+  }
+};
+
+const kodlar  = ['K3','K1','B1','E1','K9','K2','K8','K7','K5','E4','K4','E2'];
+const ocakSa  = [189, 70, 180, 29, 165, 128, 121, 58, 71, 67, 11, 10];
+const tsOcak  = [94601,20742,5031,9085,51250,173858,106907,0,8767,59133,38008,56762];
+const tsSubat = [15436,5284,64557,328,348148,15317,46548,40825,27577,0,274500,0];
+const rolanti = [9.5,3.2,2.8,39.1,4.1,5.4,4.9,9.1,4.2,18.3,6.8,2.5];
+
+new Chart(document.getElementById('cSaat'), {
+  type:'bar',
+  data:{ labels:kodlar, datasets:[{
+    data:ocakSa,
+    backgroundColor: ocakSa.map((_,i) => kodlar[i]==='E1'?'#ef4444aa':'#3b82f6aa'),
+    borderColor:     ocakSa.map((_,i) => kodlar[i]==='E1'?'#ef4444'  :'#3b82f6'),
+    borderWidth:1, borderRadius:4,
+  }]},
+  options: opts,
+});
+
+new Chart(document.getElementById('cTs'), {
+  type:'bar',
+  data:{ labels:kodlar, datasets:[
+    { label:'Ocak',  data:tsOcak,  backgroundColor:'#3b82f688', borderRadius:3 },
+    { label:'Şubat', data:tsSubat, backgroundColor:'#8b5cf688', borderRadius:3 },
+  ]},
+  options:{ ...opts, plugins:{ legend:{ display:true, labels:{ color:'#94a3b8', font:{ size:10 } } } } },
+});
+
+new Chart(document.getElementById('cRol'), {
+  type:'bar',
+  data:{ labels:kodlar, datasets:[{
+    data:rolanti,
+    backgroundColor: rolanti.map(v => v>=20?'#ef4444aa':v>=10?'#f59e0baa':'#22c55eaa'),
+    borderColor:     rolanti.map(v => v>=20?'#ef4444'  :v>=10?'#f59e0b'  :'#22c55e'),
+    borderWidth:1, borderRadius:4,
+  }]},
+  options: opts,
+});
+</script>
+</body>
+</html>
