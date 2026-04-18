@@ -1,515 +1,534 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>SAFİR PULSE — Konkasör Dashboard</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SAFIR PULSE KONKASÖR</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;800;900&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0f172a;--surface:#1e293b;--border:#334155;--text:#e2e8f0;--muted:#64748b;
-      --green:#22c55e;--yellow:#f59e0b;--red:#ef4444;--blue:#3b82f6;--purple:#8b5cf6}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
-
-.header{background:#0a1628;border-bottom:1px solid var(--border);padding:14px 24px;
-        display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
-.header-brand{display:flex;align-items:center;gap:10px}
-.header-brand h1{font-size:18px;font-weight:700}
-.header-meta{font-size:12px;color:var(--muted);text-align:right;line-height:1.8}
-.header-meta strong{color:var(--text)}
-
-.summary-bar{display:flex;gap:12px;padding:16px 24px;border-bottom:1px solid var(--border);flex-wrap:wrap}
-.stat-card{background:var(--surface);border-radius:10px;padding:12px 20px;text-align:center;
-           min-width:100px;border:1px solid var(--border)}
-.stat-val{font-size:22px;font-weight:700;display:block;line-height:1.2}
-.stat-lbl{font-size:11px;color:var(--muted);display:block;margin-top:3px}
-
-.alerts{padding:14px 24px;display:flex;gap:10px;flex-wrap:wrap}
-.alert-card{background:#1a1212;border:1px solid #ef444444;border-radius:8px;padding:10px 14px;
-            display:flex;align-items:flex-start;gap:10px;min-width:220px;flex:1}
-.alert-card.warn{background:#1a1500;border-color:#f59e0b44}
-.alert-icon{font-size:18px;flex-shrink:0;margin-top:1px}
-.alert-title{font-size:13px;font-weight:700;color:var(--red);margin-bottom:2px}
-.alert-card.warn .alert-title{color:var(--yellow)}
-.alert-desc{font-size:11px;color:#94a3b8;line-height:1.5}
-
-.nav-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;
-         display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.btn{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid var(--border);
-     cursor:pointer;transition:all .12s;font-family:inherit;background:var(--surface);color:var(--muted)}
-.btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
-.btn.active-type{background:var(--purple);color:#fff;border-color:var(--purple)}
-.vr{width:1px;height:20px;background:var(--border);margin:0 4px;flex-shrink:0}
-.nav-count{font-size:12px;color:var(--muted);margin-left:auto}
-
-.main-content{display:flex;min-height:calc(100vh - 340px)}
-.grid-section{flex:1;padding:20px 24px;min-width:0}
-.section-title{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;
-               letter-spacing:.5px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
-
-.makine-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
-
-.mk{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;
-    transition:border-color .15s,filter .15s;cursor:default}
-.mk:hover{border-color:var(--blue);filter:brightness(1.08)}
-.mk.pasif{opacity:.65}
-.mk.alert-h{border-color:#ef444466}
-
-.mk-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
-.mk-ikon{font-size:26px;line-height:1;flex-shrink:0}
-.mk-info{flex:1;min-width:0}
-.mk-model{font-weight:700;font-size:14px}
-.mk-alt{font-size:11px;color:var(--muted);margin-top:2px}
-.mk-badge{display:flex;align-items:center;gap:5px;flex-shrink:0}
-.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
-
-.mk-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
-.mk-s{text-align:center}
-.mk-sv{font-size:16px;font-weight:700;display:block}
-.mk-sl{font-size:10px;color:var(--muted);display:block;margin-top:1px}
-
-.rol-bar{height:4px;background:var(--border);border-radius:2px;margin-bottom:8px}
-.rol-fill{height:100%;border-radius:2px}
-
-.mk-bot{display:flex;justify-content:space-between;align-items:center;
-        padding-top:8px;border-top:1px solid var(--border)}
-.lok{font-size:11px;color:var(--muted)}
-.lok strong{color:#94a3b8}
-.ts-cost{font-size:12px;font-weight:600;color:var(--blue)}
-
-.sidebar{width:380px;flex-shrink:0;border-left:1px solid var(--border);padding:20px;
-         display:flex;flex-direction:column;gap:20px}
-.chart-wrap{background:var(--surface);border-radius:10px;padding:16px}
-.chart-title{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:12px;
-             text-transform:uppercase;letter-spacing:.5px}
-.chart-canvas-wrap{position:relative;height:190px;width:100%}
-
-.sehir-tbl{width:100%;border-collapse:collapse;font-size:12px}
-.sehir-tbl th{color:var(--muted);font-weight:600;padding:6px 8px;text-align:left;border-bottom:1px solid var(--border)}
-.sehir-tbl td{padding:7px 8px;border-bottom:1px solid #1e293b;color:var(--text)}
-.sehir-tbl tr:last-child td{border-bottom:none}
-
-.footer{text-align:center;padding:14px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)}
-
-.hidden{display:none!important}
-
-@media(max-width:900px){
-  .main-content{flex-direction:column}
-  .sidebar{width:100%;border-left:none;border-top:1px solid var(--border)}
+:root {
+  --bg:       #07090c;
+  --bg2:      #0c1018;
+  --bg3:      #111820;
+  --border:   #192030;
+  --border2:  #1f2d40;
+  --text:     #dce8f5;
+  --muted:    #364a60;
+  --muted2:   #536880;
+  --green:    #22d3a4;
+  --red:      #f43f5e;
+  --orange:   #fb923c;
+  --blue:     #38bdf8;
+  --yellow:   #fbbf24;
+  --purple:   #c084fc;
+  --accent:   #38bdf8;
+  --hatay:    #f43f5e;
+  --maras:    #fb923c;
+  --istanbul: #a78bfa;
+  --bursa:    #34d399;
 }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+.header {
+  background:var(--bg2); border-bottom:1px solid var(--border);
+  padding:0 24px; display:flex; align-items:center; justify-content:space-between;
+  height:56px; position:sticky; top:0; z-index:100;
+}
+.logo { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:20px; letter-spacing:.04em; color:var(--accent); }
+.logo span { color:var(--muted2); font-weight:400; }
+.header-tags { display:flex; gap:8px; }
+.htag {
+  font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--muted2);
+  border:1px solid var(--border2); padding:2px 8px; border-radius:2px;
+}
+.period-tabs {
+  display:flex; gap:2px; background:var(--bg); border:1px solid var(--border);
+  border-radius:4px; padding:3px;
+}
+.ptab {
+  font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:600;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--muted2);
+  padding:4px 14px; border-radius:2px; cursor:pointer; transition:all .15s;
+  border:none; background:transparent;
+}
+.ptab:hover { color:var(--text); }
+.ptab.active { background:var(--accent); color:#000; }
+.kpi-strip {
+  display:grid; grid-template-columns:repeat(6,1fr);
+  border-bottom:1px solid var(--border);
+}
+.kpi {
+  padding:14px 18px; border-right:1px solid var(--border);
+  position:relative; overflow:hidden; cursor:default; transition:background .15s;
+}
+.kpi:last-child { border-right:none; }
+.kpi:hover { background:rgba(56,189,248,.03); }
+.kpi::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:var(--accent); opacity:0; transition:opacity .2s;
+}
+.kpi:hover::before { opacity:1; }
+.kpi-label { font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:5px; }
+.kpi-val   { font-family:'Barlow Condensed',sans-serif; font-size:26px; font-weight:700; line-height:1; }
+.kpi-sub   { font-size:10px; color:var(--muted2); margin-top:4px; }
+.sehir-badges { display:flex; gap:12px; align-items:center; }
+.sbadge { display:flex; align-items:center; gap:5px; font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted2); }
+.sbadge-dot { width:8px; height:8px; border-radius:2px; }
+.main { padding:20px 24px; display:flex; flex-direction:column; gap:18px; }
+.section-title {
+  font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--muted);
+  display:flex; align-items:center; gap:8px; margin-bottom:12px;
+}
+.section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+.insight {
+  background:var(--bg2); border:1px solid var(--border); border-left:3px solid var(--accent);
+  padding:12px 16px; border-radius:4px; font-size:13px; color:var(--muted2); line-height:1.7;
+}
+.insight strong { color:var(--text); }
+.tag { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10px; padding:1px 6px; border-radius:2px; margin:0 2px; }
+.tag-h { background:rgba(244,63,94,.15);  color:#fda4af; }
+.tag-m { background:rgba(251,146,60,.15); color:#fed7aa; }
+.tag-i { background:rgba(167,139,250,.15);color:#ddd6fe; }
+.tag-b { background:rgba(52,211,153,.15); color:#a7f3d0; }
+.tag-g { background:rgba(34,211,164,.15); color:#99f6e4; }
+.tag-y { background:rgba(251,191,36,.15); color:#fde68a; }
+.g2  { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.g3  { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+.g21 { display:grid; grid-template-columns:2fr 1fr; gap:16px; }
+.card { background:var(--bg2); border:1px solid var(--border); border-radius:6px; overflow:hidden; }
+.card-header { padding:12px 16px 8px; border-bottom:1px solid var(--border); display:flex; align-items:flex-start; justify-content:space-between; }
+.card-title  { font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--text); }
+.card-desc   { font-size:11px; color:var(--muted); margin-top:2px; }
+.card-body   { padding:14px 16px; }
+.chart-wrap  { position:relative; }
+.mak-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:10px; }
+.mak-kart {
+  background:var(--bg3); border:1px solid var(--border); border-left:3px solid var(--border2);
+  border-radius:4px; padding:12px; transition:border-color .15s; cursor:pointer;
+}
+.mak-kart:hover { border-left-color:var(--accent); }
+.mak-kart.pasif { opacity:.5; }
+.mk-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
+.mk-kod  { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:900; letter-spacing:.02em; }
+.mk-isim { font-size:11px; color:var(--muted2); margin-top:1px; max-width:180px; }
+.mk-badge { font-family:'JetBrains Mono',monospace; font-size:10px; padding:2px 7px; border-radius:2px; font-weight:700; white-space:nowrap; }
+.mk-metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; margin-top:8px; }
+.mk-m .mk-ml { font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:2px; }
+.mk-m .mk-mv { font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; }
+.mk-bar      { height:3px; background:var(--border); border-radius:2px; margin-top:8px; overflow:hidden; }
+.mk-bf       { height:100%; border-radius:2px; }
+.rolanti-bar { height:6px; background:var(--border); border-radius:3px; overflow:hidden; margin-top:4px; }
+.rolanti-fill { height:100%; border-radius:3px; transition:width .5s; }
+.scroll-wrap { overflow-x:auto; max-height:460px; overflow-y:auto; }
+.scroll-wrap::-webkit-scrollbar { width:4px; height:4px; }
+.scroll-wrap::-webkit-scrollbar-thumb { background:var(--border2); border-radius:2px; }
+.tablo { width:100%; border-collapse:collapse; font-size:12px; }
+.tablo th {
+  font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--muted); text-align:left;
+  padding:8px 10px; border-bottom:1px solid var(--border); background:var(--bg);
+  position:sticky; top:0;
+}
+.tablo th.r { text-align:right; }
+.tablo td { padding:7px 10px; border-bottom:1px solid rgba(25,32,48,.7); vertical-align:middle; }
+.tablo tr:hover td { background:rgba(255,255,255,.02); }
+.tablo td.mono { font-family:'JetBrains Mono',monospace; font-size:11px; text-align:right; }
+#maliyet-panel {
+  display:none; background:var(--bg2); border-bottom:3px solid rgba(251,191,36,.3);
+  padding:20px 24px; flex-direction:column; gap:18px;
+}
+#maliyet-panel.open { display:flex; }
+.maliyet-toggle-active {
+  background:rgba(251,191,36,.2) !important; color:#fbbf24 !important;
+  border-color:rgba(251,191,36,.6) !important; box-shadow:0 0 12px rgba(251,191,36,.15);
+}
+.mkpi { background:var(--bg3); border:1px solid var(--border); border-radius:6px; padding:14px 18px; }
+.mkpi-label { font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:5px; }
+.mkpi-val { font-family:'Barlow Condensed',sans-serif; font-size:24px; font-weight:700; line-height:1; }
+.mkpi-sub { font-size:10px; color:var(--muted2); margin-top:4px; }
+.tl { color:#fbbf24; }
+.rank-item { display:flex; align-items:center; gap:8px; padding:5px 0; border-bottom:1px solid rgba(25,32,48,.5); }
+.rank-item:last-child { border-bottom:none; }
+.rank-kod  { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted2); width:30px; flex-shrink:0; }
+.rank-isim { font-size:10px; color:var(--muted2); width:120px; flex-shrink:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+.rank-bar-outer { flex:1; height:5px; background:var(--border); border-radius:3px; overflow:hidden; }
+.rank-bar-inner { height:100%; border-radius:3px; }
+.rank-val  { font-family:'JetBrains Mono',monospace; font-size:10px; width:50px; text-align:right; flex-shrink:0; }
+.makine-selector { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+.msel-btn {
+  font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700;
+  letter-spacing:.06em; padding:3px 10px; border-radius:3px; cursor:pointer;
+  border:1px solid var(--border2); background:var(--bg3); color:var(--muted2);
+  transition:all .15s;
+}
+.msel-btn:hover { color:var(--text); }
+.msel-btn.active { color:#000; }
 </style>
 </head>
 <body>
 
-<header class="header">
-  <div class="header-brand">
-    <span style="font-size:22px">🪨</span>
-    <h1>SAFİR PULSE — Konkasör &amp; Elek Filosu</h1>
-  </div>
-  <div class="header-meta">
-    <strong>Dönem:</strong> Ocak–Şubat 2026 &nbsp;|&nbsp;
-    <strong>Son Güncelleme:</strong> 08.04.2026<br>
-    <strong>Kaynak:</strong> VisionLink + Saha Raporu &nbsp;|&nbsp; 15 makine
-  </div>
-</header>
-
-<div class="summary-bar">
-  <div class="stat-card"><span class="stat-val" style="color:#e2e8f0">15</span><span class="stat-lbl">Toplam Makine</span></div>
-  <div class="stat-card"><span class="stat-val" style="color:#22c55e">12</span><span class="stat-lbl">Aktif</span></div>
-  <div class="stat-card"><span class="stat-val" style="color:#ef4444">3</span><span class="stat-lbl">Pasif</span></div>
-  <div class="stat-card"><span class="stat-val" style="color:#60a5fa">1.099</span><span class="stat-lbl">Oca Toplam Saat</span></div>
-  <div class="stat-card"><span class="stat-val" style="color:#60a5fa">1.037</span><span class="stat-lbl">Şub Toplam Saat</span></div>
-  <div class="stat-card"><span class="stat-val" style="color:#f59e0b">1.464.561</span><span class="stat-lbl">TS Gideri (TL)</span></div>
-  <div class="stat-card"><span class="stat-val" style="color:#8b5cf6">51.750</span><span class="stat-lbl">AT/SM Gideri (TL)</span></div>
-</div>
-
-<div class="alerts">
-  <div class="alert-card">
-    <div class="alert-icon">🚨</div>
-    <div><div class="alert-title">E1 — Yüksek Rölanti %39,1</div>
-    <div class="alert-desc">Filonun en yüksek bekleme süresi. Ocak ayında 29 sa çalışmaya karşın operatör rölantisi kritik — incelenmeli.</div></div>
-  </div>
-  <div class="alert-card">
-    <div class="alert-icon">🚨</div>
-    <div><div class="alert-title">K9 — Şubat TS: 348.148 TL</div>
-    <div class="alert-desc">Dönemin tek makine için en yüksek teknik servis gideri. KLEEMAN EVO YENİ, Maraş/AHES sahasında.</div></div>
-  </div>
-  <div class="alert-card">
-    <div class="alert-icon">🚨</div>
-    <div><div class="alert-title">K4 — Şubat TS: 274.500 TL</div>
-    <div class="alert-desc">METSO çeneli konkasör iki ayda toplam 312.508 TL TS gideri üretti. İstanbul/Entegre sahası.</div></div>
-  </div>
-  <div class="alert-card warn">
-    <div class="alert-icon">⚠️</div>
-    <div><div class="alert-title">E3 · K6 — İki Ayda Pasif</div>
-    <div class="alert-desc">Maraş/AHES ve Maraş/Nuryol lokasyonlarında sıfır çalışma saati. Saha kontrolü gerekli.</div></div>
-  </div>
-</div>
-
-<div class="nav-bar">
-  <button class="btn active" data-sehir="tümü" onclick="filtrele(this,'sehir')">Tümü</button>
-  <button class="btn" data-sehir="Hatay"    onclick="filtrele(this,'sehir')">📍 Hatay/İskenderun</button>
-  <button class="btn" data-sehir="Maraş"    onclick="filtrele(this,'sehir')">📍 Maraş/AHES</button>
-  <button class="btn" data-sehir="İstanbul" onclick="filtrele(this,'sehir')">📍 İstanbul/Entegre</button>
-  <button class="btn" data-sehir="Bursa"    onclick="filtrele(this,'sehir')">📍 Bursa/Karacabey</button>
-  <div class="vr"></div>
-  <button class="btn active-type" data-tur="tümü"     onclick="filtrele(this,'tur')">Tüm Tipler</button>
-  <button class="btn" data-tur="Konkasör" onclick="filtrele(this,'tur')">🪨 Konkasör</button>
-  <button class="btn" data-tur="Elek"     onclick="filtrele(this,'tur')">🔲 Elek</button>
-  <button class="btn" data-tur="Konveyor" onclick="filtrele(this,'tur')">🔗 Konveyor</button>
-  <span class="nav-count" id="sayac">15 makine</span>
-</div>
-
-<div class="main-content">
-  <div class="grid-section">
-    <div class="section-title">Makine Listesi</div>
-    <div class="makine-grid" id="grid">
-
-      <!-- K3 -->
-      <div class="mk" data-sehir="Hatay" data-tur="Konkasör">
-        <div class="mk-top">
-          <span class="mk-ikon">🪨</span>
-          <div class="mk-info"><div class="mk-model">METSO LT1213S <span style="color:#475569;font-size:11px;font-weight:400">K3</span></div><div class="mk-alt">Konkasör · 2024</div></div>
-          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
-        </div>
-        <div class="mk-stats">
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">189</span><span class="mk-sl">Oca (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">108</span><span class="mk-sl">Şub (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#22c55e">%9,5</span><span class="mk-sl">Rölanti (Oca)</span></div>
-        </div>
-        <div class="rol-bar"><div class="rol-fill" style="width:15.8%;background:#22c55e"></div></div>
-        <div class="mk-bot"><div class="lok">📍 <strong>Hatay/İskenderun</strong></div><div class="ts-cost">TS: 110.037 TL</div></div>
-      </div>
-
-      <!-- K1 -->
-      <div class="mk" data-sehir="Hatay" data-tur="Konkasör">
-        <div class="mk-top">
-          <span class="mk-ikon">🪨</span>
-          <div class="mk-info"><div class="mk-model">METSO LT1213 <span style="color:#475569;font-size:11px;font-weight:400">K1</span></div><div class="mk-alt">Konkasör · 2015</div></div>
-          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
-        </div>
-        <div class="mk-stats">
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">70</span><span class="mk-sl">Oca (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">109</span><span class="mk-sl">Şub (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#22c55e">%3,2</span><span class="mk-sl">Rölanti (Oca)</span></div>
-        </div>
-        <div class="rol-bar"><div class="rol-fill" style="width:5.3%;background:#22c55e"></div></div>
-        <div class="mk-bot"><div class="lok">📍 <strong>Hatay/İskenderun</strong></div><div class="ts-cost">TS: 26.026 TL</div></div>
-      </div>
-
-      <!-- B1 -->
-      <div class="mk" data-sehir="Hatay" data-tur="Konveyor">
-        <div class="mk-top">
-          <span class="mk-ikon">🔗</span>
-          <div class="mk-info"><div class="mk-model">KLEEMAN KONVEYOR <span style="color:#475569;font-size:11px;font-weight:400">B1</span></div><div class="mk-alt">Konveyor · 2024</div></div>
-          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
-        </div>
-        <div class="mk-stats">
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">180</span><span class="mk-sl">Oca (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">120</span><span class="mk-sl">Şub (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#22c55e">%2,8</span><span class="mk-sl">Rölanti (Oca)</span></div>
-        </div>
-        <div class="rol-bar"><div class="rol-fill" style="width:4.7%;background:#22c55e"></div></div>
-        <div class="mk-bot"><div class="lok">📍 <strong>Hatay/İskenderun</strong></div><div class="ts-cost">TS: 69.588 TL</div></div>
-      </div>
-
-      <!-- E1 — ALERT -->
-      <div class="mk alert-h" data-sehir="Hatay" data-tur="Elek">
-        <div class="mk-top">
-          <span class="mk-ikon">🔲</span>
-          <div class="mk-info"><div class="mk-model">METSO ELEK <span style="color:#475569;font-size:11px;font-weight:400">E1</span></div><div class="mk-alt">Elek · 2016</div></div>
-          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
-        </div>
-        <div class="mk-stats">
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">29</span><span class="mk-sl">Oca (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">39</span><span class="mk-sl">Şub (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#ef4444">%39,1 ⚠</span><span class="mk-sl">Rölanti (Oca)</span></div>
-        </div>
-        <div class="rol-bar"><div class="rol-fill" style="width:65%;background:#ef4444"></div></div>
-        <div class="mk-bot"><div class="lok">📍 <strong>Hatay/İskenderun</strong></div><div class="ts-cost">TS: 9.413 TL</div></div>
-      </div>
-
-      <!-- K9 — ALERT -->
-      <div class="mk alert-h" data-sehir="Maraş" data-tur="Konkasör">
-        <div class="mk-top">
-          <span class="mk-ikon">🪨</span>
-          <div class="mk-info"><div class="mk-model">KLEEMAN EVO YENİ <span style="color:#475569;font-size:11px;font-weight:400">K9</span></div><div class="mk-alt">Konkasör · 2023</div></div>
-          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
-        </div>
-        <div class="mk-stats">
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">165</span><span class="mk-sl">Oca (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">55</span><span class="mk-sl">Şub (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#22c55e">%4,1</span><span class="mk-sl">Rölanti (Oca)</span></div>
-        </div>
-        <div class="rol-bar"><div class="rol-fill" style="width:6.8%;background:#22c55e"></div></div>
-        <div class="mk-bot"><div class="lok">📍 <strong>Maraş/AHES</strong></div><div class="ts-cost" style="color:#ef4444">TS: 399.398 TL ⚠</div></div>
-      </div>
-
-      <!-- K2 -->
-      <div class="mk" data-sehir="Maraş" data-tur="Konkasör">
-        <div class="mk-top">
-          <span class="mk-ikon">🪨</span>
-          <div class="mk-info"><div class="mk-model">METSO LT1213 <span style="color:#475569;font-size:11px;font-weight:400">K2</span></div><div class="mk-alt">Konkasör · 2022</div></div>
-          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
-        </div>
-        <div class="mk-stats">
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">128</span><span class="mk-sl">Oca (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">33</span><span class="mk-sl">Şub (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#22c55e">%5,4</span><span class="mk-sl">Rölanti (Oca)</span></div>
-        </div>
-        <div class="rol-bar"><div class="rol-fill" style="width:9%;background:#22c55e"></div></div>
-        <div class="mk-bot"><div class="lok">📍 <strong>Maraş + Hatay</strong></div><div class="ts-cost">TS: 189.175 TL</div></div>
-      </div>
-
-      <!-- K8 -->
-      <div class="mk" data-sehir="Maraş" data-tur="Konkasör">
-        <div class="mk-top">
-          <span class="mk-ikon">🪨</span>
-          <div class="mk-info"><div class="mk-model">KLEEMAN MC110I EVO2 <span style="color:#475569;font-size:11px;font-weight:400">K8</span></div><div class="mk-alt">Konkasör · 2025</div></div>
-          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
-        </div>
-        <div class="mk-stats">
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">121</span><span class="mk-sl">Oca (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">93</span><span class="mk-sl">Şub (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#22c55e">%4,9</span><span class="mk-sl">Rölanti (Oca)</span></div>
-        </div>
-        <div class="rol-bar"><div class="rol-fill" style="width:8.2%;background:#22c55e"></div></div>
-        <div class="mk-bot"><div class="lok">📍 <strong>Maraş/AHES</strong></div><div class="ts-cost">TS: 153.455 TL</div></div>
-      </div>
-
-      <!-- K7 -->
-      <div class="mk" data-sehir="Maraş" data-tur="Konkasör">
-        <div class="mk-top">
-          <span class="mk-ikon">🪨</span>
-          <div class="mk-info"><div class="mk-model">KLEEMAN EVO ESKİ <span style="color:#475569;font-size:11px;font-weight:400">K7</span></div><div class="mk-alt">Konkasör · 2023</div></div>
-          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
-        </div>
-        <div class="mk-stats">
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">58</span><span class="mk-sl">Oca (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">41</span><span class="mk-sl">Şub (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#f59e0b">%9,1</span><span class="mk-sl">Rölanti (Oca)</span></div>
-        </div>
-        <div class="rol-bar"><div class="rol-fill" style="width:15.2%;background:#f59e0b"></div></div>
-        <div class="mk-bot"><div class="lok">📍 <strong>Maraş/AHES</strong></div><div class="ts-cost">TS: 40.825 TL</div></div>
-      </div>
-
-      <!-- K5 -->
-      <div class="mk" data-sehir="Bursa" data-tur="Konkasör">
-        <div class="mk-top">
-          <span class="mk-ikon">🪨</span>
-          <div class="mk-info"><div class="mk-model">KLEEMAN KONKASÖR PRO <span style="color:#475569;font-size:11px;font-weight:400">K5</span></div><div class="mk-alt">Konkasör · 2024</div></div>
-          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
-        </div>
-        <div class="mk-stats">
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">71</span><span class="mk-sl">Oca (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">71</span><span class="mk-sl">Şub (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#22c55e">%4,2</span><span class="mk-sl">Rölanti (Oca)</span></div>
-        </div>
-        <div class="rol-bar"><div class="rol-fill" style="width:7%;background:#22c55e"></div></div>
-        <div class="mk-bot"><div class="lok">📍 <strong>Bursa/Karacabey</strong></div><div class="ts-cost">TS: 36.344 TL</div></div>
-      </div>
-
-      <!-- E4 -->
-      <div class="mk" data-sehir="Bursa" data-tur="Elek">
-        <div class="mk-top">
-          <span class="mk-ikon">🔲</span>
-          <div class="mk-info"><div class="mk-model">KLEEMAN ELEK K155 <span style="color:#475569;font-size:11px;font-weight:400">E4</span></div><div class="mk-alt">Elek · 2025</div></div>
-          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
-        </div>
-        <div class="mk-stats">
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">67</span><span class="mk-sl">Oca (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">129</span><span class="mk-sl">Şub (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#f59e0b">%18,3</span><span class="mk-sl">Rölanti (Oca)</span></div>
-        </div>
-        <div class="rol-bar"><div class="rol-fill" style="width:30.5%;background:#f59e0b"></div></div>
-        <div class="mk-bot"><div class="lok">📍 <strong>Bursa/Karacabey</strong></div><div class="ts-cost">TS: 59.133 TL</div></div>
-      </div>
-
-      <!-- K4 — ALERT -->
-      <div class="mk alert-h" data-sehir="İstanbul" data-tur="Konkasör">
-        <div class="mk-top">
-          <span class="mk-ikon">🪨</span>
-          <div class="mk-info"><div class="mk-model">METSO ÇENELİ <span style="color:#475569;font-size:11px;font-weight:400">K4</span></div><div class="mk-alt">Konkasör · 2011</div></div>
-          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
-        </div>
-        <div class="mk-stats">
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">11</span><span class="mk-sl">Oca (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">228</span><span class="mk-sl">Şub (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#22c55e">%6,8</span><span class="mk-sl">Rölanti (Oca)</span></div>
-        </div>
-        <div class="rol-bar"><div class="rol-fill" style="width:11.3%;background:#22c55e"></div></div>
-        <div class="mk-bot"><div class="lok">📍 <strong>İstanbul/Entegre</strong></div><div class="ts-cost" style="color:#ef4444">TS: 312.508 TL ⚠</div></div>
-      </div>
-
-      <!-- E2 -->
-      <div class="mk" data-sehir="İstanbul" data-tur="Elek">
-        <div class="mk-top">
-          <span class="mk-ikon">🔲</span>
-          <div class="mk-info"><div class="mk-model">KLEEMAN ELEK <span style="color:#475569;font-size:11px;font-weight:400">E2</span></div><div class="mk-alt">Elek · 2022</div></div>
-          <div class="mk-badge"><span class="dot" style="background:#22c55e"></span><span style="font-size:11px;color:#22c55e;font-weight:600">Aktif</span></div>
-        </div>
-        <div class="mk-stats">
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">10</span><span class="mk-sl">Oca (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">227</span><span class="mk-sl">Şub (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#22c55e">%2,5</span><span class="mk-sl">Rölanti (Oca)</span></div>
-        </div>
-        <div class="rol-bar"><div class="rol-fill" style="width:4.2%;background:#22c55e"></div></div>
-        <div class="mk-bot"><div class="lok">📍 <strong>İstanbul/Entegre</strong></div><div class="ts-cost">TS: 56.762 TL</div></div>
-      </div>
-
-      <!-- E3 — PASİF -->
-      <div class="mk pasif" data-sehir="Maraş" data-tur="Elek">
-        <div class="mk-top">
-          <span class="mk-ikon">🔲</span>
-          <div class="mk-info"><div class="mk-model">MACC CLOSKY S80 <span style="color:#475569;font-size:11px;font-weight:400">E3</span></div><div class="mk-alt">Elek · 2016</div></div>
-          <div class="mk-badge"><span class="dot" style="background:#ef4444"></span><span style="font-size:11px;color:#ef4444;font-weight:600">Pasif</span></div>
-        </div>
-        <div class="mk-stats">
-          <div class="mk-s"><span class="mk-sv" style="color:#475569">0</span><span class="mk-sl">Oca (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#475569">0</span><span class="mk-sl">Şub (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#475569">—</span><span class="mk-sl">Rölanti</span></div>
-        </div>
-        <div class="mk-bot"><div class="lok">📍 <strong>Maraş/AHES</strong></div><div style="font-size:11px;color:#64748b">Saha kontrolü gerekli</div></div>
-      </div>
-
-      <!-- E5 — PASİF -->
-      <div class="mk pasif" data-sehir="Maraş" data-tur="Elek">
-        <div class="mk-top">
-          <span class="mk-ikon">🔲</span>
-          <div class="mk-info"><div class="mk-model">KLEEMAN ELEK EVO <span style="color:#475569;font-size:11px;font-weight:400">E5</span></div><div class="mk-alt">Elek · 2023</div></div>
-          <div class="mk-badge"><span class="dot" style="background:#f59e0b"></span><span style="font-size:11px;color:#f59e0b;font-weight:600">Kısmen</span></div>
-        </div>
-        <div class="mk-stats">
-          <div class="mk-s"><span class="mk-sv" style="color:#475569">0</span><span class="mk-sl">Oca (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#60a5fa">44</span><span class="mk-sl">Şub (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#22c55e">%3,0</span><span class="mk-sl">Rölanti (Şub)</span></div>
-        </div>
-        <div class="mk-bot"><div class="lok">📍 <strong>Maraş/AHES</strong></div><div style="font-size:11px;color:#64748b">Şubat'ta aktife geçmiş olabilir</div></div>
-      </div>
-
-      <!-- K6 — PASİF -->
-      <div class="mk pasif" data-sehir="Maraş" data-tur="Elek">
-        <div class="mk-top">
-          <span class="mk-ikon">🔲</span>
-          <div class="mk-info"><div class="mk-model">KLEEMAN SCALPER <span style="color:#475569;font-size:11px;font-weight:400">K6</span></div><div class="mk-alt">Elek/Scalper · 2023</div></div>
-          <div class="mk-badge"><span class="dot" style="background:#ef4444"></span><span style="font-size:11px;color:#ef4444;font-weight:600">Pasif</span></div>
-        </div>
-        <div class="mk-stats">
-          <div class="mk-s"><span class="mk-sv" style="color:#475569">0</span><span class="mk-sl">Oca (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#475569">0</span><span class="mk-sl">Şub (sa)</span></div>
-          <div class="mk-s"><span class="mk-sv" style="color:#475569">—</span><span class="mk-sl">Rölanti</span></div>
-        </div>
-        <div class="mk-bot"><div class="lok">📍 <strong>Maraş/Nuryol</strong></div><div style="font-size:11px;color:#64748b">İki ayda pasif — kontrol gerekli</div></div>
-      </div>
-
-    </div><!-- /grid -->
-  </div><!-- /grid-section -->
-
-  <!-- Yan panel -->
-  <aside class="sidebar">
-    <div class="chart-wrap">
-      <div class="chart-title">Ocak Çalışma Saatleri</div>
-      <div class="chart-canvas-wrap"><canvas id="cSaat"></canvas></div>
+<div class="header">
+  <div style="display:flex;align-items:center;gap:14px">
+    <div class="logo">SAFIR PULSE <span>KONKASÖR</span></div>
+    <div class="header-tags">
+      <div class="htag">15 Makine</div>
+      <div class="htag" id="kpi-donem">Ocak+Şubat+Mart 2026</div>
     </div>
-    <div class="chart-wrap">
-      <div class="chart-title">TS Maliyeti — Oca + Şub (TL)</div>
-      <div class="chart-canvas-wrap" style="height:210px"><canvas id="cTs"></canvas></div>
+    <div class="sehir-badges">
+      <div class="sbadge"><span class="sbadge-dot" style="background:var(--hatay)"></span>Hatay</div>
+      <div class="sbadge"><span class="sbadge-dot" style="background:var(--maras)"></span>Maraş</div>
+      <div class="sbadge"><span class="sbadge-dot" style="background:var(--istanbul)"></span>İstanbul</div>
+      <div class="sbadge"><span class="sbadge-dot" style="background:var(--bursa)"></span>Bursa</div>
     </div>
-    <div class="chart-wrap">
-      <div class="chart-title">Şehir Bazlı Özet — Ocak 2026</div>
-      <table class="sehir-tbl">
-        <thead><tr><th>Şehir</th><th>Makine</th><th>Saat</th></tr></thead>
-        <tbody>
-          <tr><td>Hatay/İskenderun</td><td>K3 K1 B1 E1</td><td style="color:#60a5fa;font-weight:600">468 sa</td></tr>
-          <tr><td>Maraş/AHES</td><td>K9 K2 K8 K7…</td><td style="color:#60a5fa;font-weight:600">472 sa</td></tr>
-          <tr><td>İstanbul/Entegre</td><td>K4 E2</td><td style="color:#60a5fa;font-weight:600">21 sa</td></tr>
-          <tr><td>Bursa/Karacabey</td><td>K5 E4</td><td style="color:#60a5fa;font-weight:600">138 sa</td></tr>
-        </tbody>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <div class="period-tabs">
+      <button class="ptab active" onclick="setPeriod('2026',this)">2026 Özet</button>
+      <button class="ptab" onclick="setPeriod('oca',this)">Ocak</button>
+      <button class="ptab" onclick="setPeriod('sub',this)">Şubat</button>
+      <button class="ptab" onclick="setPeriod('mar',this)">Mart</button>
+    </div>
+    <div id="veri-info" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">Ocak+Şubat+Mart 2026</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">Son güncelleme: Mart 2026</div>
+    <button id="maliyet-toggle" onclick="toggleMaliyet()" style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.3);padding:5px 14px;border-radius:4px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;">
+      💰 Maliyet
+    </button>
+  </div>
+</div>
+
+<div class="kpi-strip">
+  <div class="kpi">
+    <div class="kpi-label">Toplam Makine</div>
+    <div class="kpi-val" style="color:var(--accent)">15</div>
+    <div class="kpi-sub" id="kpi-aktif-sub">—</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Toplam Motor Saati</div>
+    <div class="kpi-val" id="kpi-motor" style="color:var(--green)">—</div>
+    <div class="kpi-sub" id="kpi-motor-sub">sa</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Toplam Rölanti</div>
+    <div class="kpi-val" id="kpi-rolanti" style="color:var(--yellow)">—</div>
+    <div class="kpi-sub" id="kpi-rolanti-sub">—</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">En Aktif Makine</div>
+    <div class="kpi-val" id="kpi-enaktif" style="color:var(--blue)">—</div>
+    <div class="kpi-sub" id="kpi-enaktif-sub">—</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Kritik Rölanti</div>
+    <div class="kpi-val" id="kpi-kritik" style="color:var(--red)">—</div>
+    <div class="kpi-sub" id="kpi-kritik-sub">—</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Pasif Makine</div>
+    <div class="kpi-val" id="kpi-pasif" style="color:var(--muted2)">—</div>
+    <div class="kpi-sub" id="kpi-pasif-sub">—</div>
+  </div>
+</div>
+
+<div id="maliyet-panel">
+  <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:14px;margin-bottom:4px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:.06em;color:#fbbf24">💰 MALİYET ANALİZİ</span>
+      <span id="mal-donem-tag" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);background:var(--bg3);border:1px solid var(--border2);padding:2px 8px;border-radius:2px">2026 Özet</span>
+    </div>
+    <div class="period-tabs" style="border-color:rgba(251,191,36,.3)">
+      <button class="ptab active" id="mptab-2026" onclick="setMalPeriod('2026',this)" style="font-size:11px">2026 Özet</button>
+      <button class="ptab" id="mptab-oca"  onclick="setMalPeriod('oca',this)"  style="font-size:11px">Ocak</button>
+      <button class="ptab" id="mptab-sub"  onclick="setMalPeriod('sub',this)"  style="font-size:11px">Şubat</button>
+      <button class="ptab" id="mptab-mar"  onclick="setMalPeriod('mar',this)"  style="font-size:11px">Mart</button>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px">
+    <div class="mkpi"><div class="mkpi-label" id="mkpi-l1">Dönem Toplam</div><div class="mkpi-val tl" id="mkpi-donem-toplam">—</div><div class="mkpi-sub">Teknik + Sarf</div></div>
+    <div class="mkpi"><div class="mkpi-label">Teknik Gider</div><div class="mkpi-val" id="mkpi-teknik" style="color:var(--blue)">—</div><div class="mkpi-sub">Servis / Bakım</div></div>
+    <div class="mkpi"><div class="mkpi-label">Sarf Malzeme</div><div class="mkpi-val" id="mkpi-sarf" style="color:var(--purple)">—</div><div class="mkpi-sub">Bıçak vb.</div></div>
+    <div class="mkpi"><div class="mkpi-label">En Pahalı Makine</div><div class="mkpi-val" id="mkpi-en-pahali" style="color:var(--orange)">—</div><div class="mkpi-sub" id="mkpi-en-pahali-sub">—</div></div>
+    <div class="mkpi"><div class="mkpi-label">Ort. ₺/Saat</div><div class="mkpi-val" id="mkpi-ort-saat" style="color:var(--yellow)">—</div><div class="mkpi-sub">Filo ortalaması</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-header"><div><div class="card-title" id="mal-chart1-title">Makine Bazlı Maliyet</div><div class="card-desc" id="mal-chart1-desc">Teknik gider + Sarf malzeme · ₺</div></div></div>
+      <div class="card-body"><div class="chart-wrap" style="height:300px"><canvas id="chart-mal-makine"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div><div class="card-title" id="mal-chart2-title">Şantiye Bazlı Maliyet</div><div class="card-desc" id="mal-chart2-desc">Şehre göre gruplandırılmış toplam ₺</div></div></div>
+      <div class="card-body"><div class="chart-wrap" style="height:300px"><canvas id="chart-mal-santiye"></canvas></div></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-header"><div><div class="card-title">Makine Tipi Bazlı Maliyet Dağılımı</div><div class="card-desc" id="mal-chart3-desc">Konkasör · Elek · Konveyor</div></div></div>
+      <div class="card-body"><div class="chart-wrap" style="height:260px"><canvas id="chart-mal-tip"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div><div class="card-title">Saat Başı Maliyet (₺/sa)</div><div class="card-desc">Toplam maliyet ÷ motor saati · verimlilik endeksi</div></div></div>
+      <div class="card-body"><div class="chart-wrap" style="height:260px"><canvas id="chart-mal-saat"></canvas></div></div>
+    </div>
+  </div>
+  <div id="mal-ozet-extra" style="display:none">
+    <div class="card">
+      <div class="card-header"><div><div class="card-title">Ocak vs Şubat vs Mart — Makine Bazlı Karşılaştırma</div><div class="card-desc">Her makine için aylık maliyet kıyası · Stacked bar</div></div></div>
+      <div class="card-body"><div class="chart-wrap" style="height:280px"><canvas id="chart-mal-ozet"></canvas></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title" id="mal-tablo-title">Maliyet Detay Tablosu — Makine Bazlı</div></div>
+    <div class="scroll-wrap"><table class="tablo"><thead id="mal-tablo-thead"></thead><tbody id="mal-tablo-body"></tbody></table></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="insight" id="insight">
+    <strong>Ocak–Mart 2026 Özeti</strong> · Mart'ta 13 makine aktif, 2 pasif (K4, K6) ·
+    Toplam motor (Mart): <strong>1.158 sa</strong> ·
+    <span class="tag tag-h">Hatay 622 sa</span>
+    <span class="tag tag-m">Maraş 464 sa</span>
+    <span class="tag tag-i">İstanbul 35 sa</span> ·
+    Mart yenisi: <span class="tag tag-g">E3 Macc Closky aktif (94 sa)</span> —
+    önceki aylarda pasifti · En aktif Mart: <span class="tag tag-g">K3 Metso LT1213S 187 sa</span>
+  </div>
+
+  <div class="g21">
+    <div class="card">
+      <div class="card-header"><div><div class="card-title">Motor Saati — Makine Bazlı</div><div class="card-desc">Şehre göre renkli · Kırmızı=Hatay · Turuncu=Maraş · Mor=İstanbul · Yeşil=Bursa</div></div></div>
+      <div class="card-body"><div class="chart-wrap" style="height:280px"><canvas id="chart-motor"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div><div class="card-title">Rölanti Oranı (%)</div><div class="card-desc">Sarı &gt;10% · Kırmızı &gt;20% — verimlilik sorunu</div></div></div>
+      <div class="card-body"><div class="chart-wrap" style="height:280px"><canvas id="chart-rolanti"></canvas></div></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-header"><div><div class="card-title">Şehir Bazlı Motor Saati</div><div class="card-desc">Her şehrin toplam üretim saati</div></div></div>
+      <div class="card-body"><div class="chart-wrap" style="height:220px"><canvas id="chart-sehir"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div><div class="card-title">Makine Tipi Dağılımı</div><div class="card-desc">Konkasör · Elek · Konveyor motor saati payı</div></div></div>
+      <div class="card-body"><div class="chart-wrap" style="height:220px"><canvas id="chart-tip"></canvas></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div><div class="card-title">Günlük Motor Saati Trendi</div><div class="card-desc">Makine seç → gün gün üretim takibi</div></div></div>
+    <div class="card-body">
+      <div class="makine-selector" id="makine-selector"></div>
+      <div id="trend-tek"><div class="chart-wrap" style="height:220px"><canvas id="chart-trend"></canvas></div></div>
+      <div id="trend-ozet" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Ocak 2026 — 28 Gün</div>
+            <div class="chart-wrap" style="height:200px"><canvas id="chart-trend-oca"></canvas></div>
+          </div>
+          <div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Şubat 2026 — 31 Gün</div>
+            <div class="chart-wrap" style="height:200px"><canvas id="chart-trend-sub"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g3">
+    <div class="card"><div class="card-header"><div class="card-title">🏆 En Çok Çalışan</div></div><div class="card-body" id="top-motor"></div></div>
+    <div class="card"><div class="card-header"><div class="card-title">⚠️ En Yüksek Rölanti</div></div><div class="card-body" id="top-rolanti"></div></div>
+    <div class="card"><div class="card-header"><div class="card-title">👤 En Fazla Personel Saati</div></div><div class="card-body" id="top-personel"></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div><div class="card-title">Makine Detay Tablosu</div><div class="card-desc">Tüm 15 makine — motor, rölanti, personel, şehir, şantiye</div></div></div>
+    <div class="scroll-wrap">
+      <table class="tablo">
+        <thead><tr>
+          <th>Kod</th><th>Makine</th><th>Tip</th><th>Şehir</th><th>Şantiye</th><th>Yıl</th>
+          <th class="r">Motor (sa)</th><th class="r">Rölanti (sa)</th><th class="r">Rölanti %</th><th class="r">Personel (sa)</th><th>Durum</th>
+        </tr></thead>
+        <tbody id="tablo-body"></tbody>
       </table>
     </div>
-    <div class="chart-wrap">
-      <div class="chart-title">Rölanti Oranı — Ocak (%)</div>
-      <div class="chart-canvas-wrap"><canvas id="cRol"></canvas></div>
-    </div>
-  </aside>
+  </div>
+
+  <div>
+    <div class="section-title">Makine Kartları</div>
+    <div class="mak-grid" id="mak-grid"></div>
+  </div>
 </div>
 
-<footer class="footer">
-  SAFİR PULSE Filo Yönetim Sistemi &nbsp;·&nbsp; Konkasör &amp; Elek Filosu &nbsp;·&nbsp; Dönem: Ocak–Şubat 2026
-</footer>
-
 <script>
-// ── FİLTRELEME (DOM show/hide) ────────────────────────────────────────────────
-let aktifSehir = 'tümü', aktifTur = 'tümü';
-
-function filtrele(btn, tip) {
-  if (tip === 'sehir') {
-    aktifSehir = btn.dataset.sehir;
-    document.querySelectorAll('[data-sehir]').forEach(b => { if(b.tagName==='BUTTON') b.classList.remove('active'); });
-  } else {
-    aktifTur = btn.dataset.tur;
-    document.querySelectorAll('[data-tur]').forEach(b => { if(b.tagName==='BUTTON') b.classList.remove('active-type','active'); });
-  }
-  btn.classList.add(tip === 'sehir' ? 'active' : 'active-type');
-  let gorunen = 0;
-  document.querySelectorAll('#grid .mk').forEach(function(kart) {
-    const sehirOk = aktifSehir === 'tümü' || kart.dataset.sehir === aktifSehir;
-    const turOk   = aktifTur   === 'tümü' || kart.dataset.tur   === aktifTur;
-    if (sehirOk && turOk) { kart.classList.remove('hidden'); gorunen++; }
-    else                  { kart.classList.add('hidden'); }
-  });
-  document.getElementById('sayac').textContent = gorunen + ' makine';
+const SUB_DATA={K5:{motor:134,rolanti:3.9,personel:144.2,rolanti_pct:2.9,aktif:true,gunler:[[1,7],[2,8],[3,9],[4,0],[5,8],[6,9],[7,3],[8,5],[9,5],[10,8],[11,0],[12,5],[13,9],[14,8],[15,10],[16,8],[17,0],[18,0],[19,6],[20,4],[21,8],[22,0],[23,0],[24,0],[25,0],[26,0],[27,8],[28,0],[29,6],[30,0],[31,0]]},E4:{motor:129,rolanti:3.4,personel:144.2,rolanti_pct:2.6,aktif:true,gunler:[[1,7],[2,8],[3,9],[4,0],[5,8],[6,9],[7,3],[8,5],[9,5],[10,8],[11,0],[12,5],[13,9],[14,8],[15,10],[16,8],[17,0],[18,0],[19,5],[20,0],[21,8],[22,0],[23,0],[24,0],[25,0],[26,0],[27,8],[28,0],[29,6],[30,0],[31,0]]},K4:{motor:228,rolanti:12.2,personel:302.3,rolanti_pct:5.4,aktif:true,gunler:[[1,0],[2,0],[3,0],[4,0],[5,0],[6,4],[7,18],[8,17],[9,16],[10,16],[11,12],[12,1],[13,0],[14,0],[15,4],[16,7],[17,0],[18,0],[19,15],[20,10],[21,9],[22,13],[23,10],[24,13],[25,6],[26,12],[27,12],[28,11],[29,12],[30,7],[31,3]]},E2:{motor:227,rolanti:13.7,personel:302.3,rolanti_pct:6.0,aktif:true,gunler:[[1,0],[2,0],[3,0],[4,0],[5,0],[6,4],[7,18],[8,17],[9,14],[10,14],[11,12],[12,1],[13,0],[14,0],[15,4],[16,7],[17,0],[18,0],[19,15],[20,10],[21,9],[22,12],[23,11],[24,13],[25,6],[26,13],[27,13],[28,11],[29,12],[30,7],[31,4]]},K3:{motor:108,rolanti:16.0,personel:244.0,rolanti_pct:14.8,aktif:true,gunler:[[1,0],[2,9],[3,0],[4,0],[5,12],[6,9],[7,8],[8,8],[9,3],[10,5],[11,0],[12,4],[13,0],[14,0],[15,0],[16,0],[17,2],[18,4],[19,5],[20,8],[21,6],[22,2],[23,8],[24,7],[25,1],[26,3],[27,0],[28,0],[29,4],[30,0],[31,0]]},E1:{motor:39,rolanti:6.0,personel:64.0,rolanti_pct:15.4,aktif:true,gunler:[[1,0],[2,0],[3,0],[4,0],[5,0],[6,2],[7,7],[8,8],[9,3],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,7],[21,6],[22,0],[23,0],[24,0],[25,2],[26,0],[27,0],[28,0],[29,4],[30,0],[31,0]]},K1:{motor:109,rolanti:4.4,personel:141.5,rolanti_pct:4.0,aktif:true,gunler:[[1,0],[2,12],[3,4],[4,0],[5,0],[6,0],[7,14],[8,2],[9,0],[10,11],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,8],[23,10],[24,8],[25,6],[26,10],[27,7],[28,0],[29,9],[30,8],[31,0]]},B1:{motor:120,rolanti:3.2,personel:141.2,rolanti_pct:2.7,aktif:true,gunler:[[1,0],[2,12],[3,5],[4,0],[5,0],[6,0],[7,13],[8,2],[9,0],[10,9],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,0],[19,1],[20,8],[21,5],[22,7],[23,8],[24,8],[25,6],[26,10],[27,9],[28,0],[29,7],[30,10],[31,0]]},K7:{motor:41,rolanti:3.6,personel:48.0,rolanti_pct:8.8,aktif:true,gunler:[[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,3],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,4],[19,8],[20,8],[21,6],[22,4],[23,0],[24,0],[25,0],[26,0],[27,0],[28,0],[29,4],[30,4],[31,0]]},K8:{motor:93,rolanti:3.4,personel:105.2,rolanti_pct:3.7,aktif:true,gunler:[[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,5],[8,9],[9,5],[10,12],[11,0],[12,0],[13,0],[14,9],[15,8],[16,7],[17,0],[18,6],[19,7],[20,7],[21,6],[22,4],[23,0],[24,0],[25,0],[26,0],[27,0],[28,0],[29,4],[30,4],[31,0]]},E5:{motor:44,rolanti:1.3,personel:52.0,rolanti_pct:3.0,aktif:true,gunler:[[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,3],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,4],[19,8],[20,8],[21,6],[22,7],[23,0],[24,0],[25,0],[26,0],[27,0],[28,0],[29,4],[30,4],[31,0]]},K9:{motor:55,rolanti:1.0,personel:61.5,rolanti_pct:1.8,aktif:true,gunler:[[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,6],[16,7],[17,10],[18,7],[19,0],[20,0],[21,6],[22,0],[23,0],[24,0],[25,0],[26,0],[27,6],[28,7],[29,0],[30,0],[31,6]]},K2:{motor:33,rolanti:1.2,personel:39.8,rolanti_pct:3.6,aktif:true,gunler:[[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,3],[8,9],[9,4],[10,12],[11,0],[12,0],[13,0],[14,3],[15,2],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0],[24,0],[25,0],[26,0],[27,0],[28,0],[29,0],[30,0],[31,0]]},E3:{motor:0,rolanti:0,personel:0,rolanti_pct:0,aktif:false,gunler:Array.from({length:31},(_,i)=>[i+1,0])},K6:{motor:0,rolanti:0,personel:0,rolanti_pct:0,aktif:false,gunler:Array.from({length:31},(_,i)=>[i+1,0])}};
+const MAR_DATA={K5:{motor:17,rolanti:0.1,personel:0.8,rolanti_pct:0.8,aktif:true,gunler:[[1,5],[2,5],[3,5],[4,2],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0],[24,0],[25,0],[26,0],[27,0],[28,0],[29,0],[30,0],[31,0]]},E4:{motor:18,rolanti:0.1,personel:0.8,rolanti_pct:0.6,aktif:true,gunler:[[1,7],[2,4],[3,5],[4,2],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0],[24,0],[25,0],[26,0],[27,0],[28,0],[29,0],[30,0],[31,0]]},K4:{motor:0,rolanti:0,personel:0,rolanti_pct:0,aktif:false,gunler:Array.from({length:31},(_,i)=>[i+1,0])},E2:{motor:0,rolanti:0,personel:0,rolanti_pct:0,aktif:false,gunler:Array.from({length:31},(_,i)=>[i+1,0])},K3:{motor:187,rolanti:0.2,personel:10.3,rolanti_pct:0.1,aktif:true,gunler:[[1,8],[2,3],[3,8],[4,5],[5,8],[6,7],[7,8],[8,0],[9,6],[10,7],[11,12],[12,8],[13,7],[14,1],[15,8],[16,8],[17,8],[18,6],[19,5],[20,0],[21,0],[22,0],[23,0],[24,7],[25,8],[26,8],[27,8],[28,9],[29,8],[30,7],[31,8]]},E1:{motor:57,rolanti:0.1,personel:4.0,rolanti_pct:0.1,aktif:true,gunler:[[1,0],[2,0],[3,8],[4,6],[5,7],[6,8],[7,1],[8,0],[9,0],[10,0],[11,12],[12,8],[13,7],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0],[24,0],[25,0],[26,0],[27,0],[28,0],[29,0],[30,0],[31,0]]},K2:{motor:81,rolanti:0.3,personel:4.5,rolanti_pct:0.3,aktif:true,gunler:[[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,5],[14,8],[15,9],[16,12],[17,6],[18,7],[19,0],[20,0],[21,0],[22,0],[23,7],[24,8],[25,8],[26,0],[27,4],[28,0],[29,7],[30,0],[31,6]]},E3:{motor:94,rolanti:0.2,personel:5.2,rolanti_pct:0.2,aktif:true,gunler:[[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,6],[14,8],[15,8],[16,13],[17,7],[18,8],[19,0],[20,0],[21,0],[22,0],[23,7],[24,8],[25,0],[26,7],[27,8],[28,0],[29,7],[30,6],[31,5]]},K1:{motor:133,rolanti:0.2,personel:6.3,rolanti_pct:0.2,aktif:true,gunler:[[1,8],[2,10],[3,5],[4,8],[5,0],[6,5],[7,8],[8,6],[9,4],[10,0],[11,8],[12,8],[13,7],[14,5],[15,8],[16,7],[17,5],[18,8],[19,7],[20,0],[21,0],[22,0],[23,0],[24,5],[25,0],[26,0],[27,9],[28,0],[29,7],[30,4],[31,3]]},B1:{motor:107,rolanti:0.2,personel:5.1,rolanti_pct:0.2,aktif:true,gunler:[[1,0],[2,0],[3,0],[4,0],[5,0],[6,9],[7,7],[8,7],[9,0],[10,8],[11,4],[12,0],[13,0],[14,7],[15,8],[16,7],[17,5],[18,7],[19,0],[20,0],[21,0],[22,0],[23,5],[24,7],[25,0],[26,0],[27,19],[28,0],[29,7],[30,0],[31,7]]},K7:{motor:102,rolanti:0.2,personel:4.6,rolanti_pct:0.1,aktif:true,gunler:[[1,0],[2,0],[3,0],[4,0],[5,9],[6,9],[7,0],[8,5],[9,9],[10,11],[11,10],[12,9],[13,9],[14,0],[15,7],[16,9],[17,0],[18,4],[19,0],[20,0],[21,0],[22,0],[23,0],[24,0],[25,0],[26,0],[27,0],[28,0],[29,0],[30,0],[31,0]]},K8:{motor:161,rolanti:0.2,personel:8.1,rolanti_pct:0.1,aktif:true,gunler:[[1,8],[2,9],[3,9],[4,9],[5,9],[6,11],[7,10],[8,7],[9,9],[10,8],[11,11],[12,9],[13,9],[14,8],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0],[24,10],[25,2],[26,11],[27,7],[28,5],[29,7],[30,5],[31,0]]},E5:{motor:45,rolanti:0.1,personel:2.0,rolanti_pct:0.2,aktif:true,gunler:[[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,7],[14,8],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0],[24,0],[25,6],[26,0],[27,10],[28,12],[29,2],[30,0],[31,0]]},K9:{motor:156,rolanti:0.2,personel:6.7,rolanti_pct:0.2,aktif:true,gunler:[[1,8],[2,9],[3,5],[4,9],[5,11],[6,8],[7,8],[8,9],[9,9],[10,11],[11,10],[12,7],[13,9],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0],[24,7],[25,0],[26,1],[27,12],[28,7],[29,6],[30,4],[31,6]]},K6:{motor:0,rolanti:0,personel:0,rolanti_pct:0,aktif:false,gunler:Array.from({length:31},(_,i)=>[i+1,0])}};
+const MAKINELER={K5:{makine:'KLEEMAN KONKASÖR PRO',sehir:'BURSA',santiye:'KARACABEY',tip:'KONKASÖR',marka:'KLEEMAN',yil:2024,motor:71,rolanti:3.0,personel:80.8,rolanti_pct:4.2,aktif:true,gunler:[[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,8],[11,3],[12,2],[13,0],[14,0],[15,4],[16,5],[17,4],[18,0],[19,0],[20,0],[21,0],[22,0],[23,3],[24,8],[25,6],[26,6],[27,14],[28,8]]},E4:{makine:'KLEEMAN ELEK K155',sehir:'BURSA',santiye:'KARACABEY',tip:'ELEK',marka:'KLEEMAN',yil:2025,motor:67,rolanti:12.2,personel:77.8,rolanti_pct:18.3,aktif:true,gunler:[[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,8],[11,3],[12,2],[13,0],[14,0],[15,4],[16,5],[17,4],[18,0],[19,0],[20,0],[21,0],[22,0],[23,3],[24,8],[25,6],[26,6],[27,14],[28,4]]},K4:{makine:'METSO KONKASÖR ÇENELİ',sehir:'İSTANBUL',santiye:'ENTEGRE/GARAJ',tip:'KONKASÖR',marka:'METSO',yil:2011,motor:11,rolanti:0.8,personel:11.2,rolanti_pct:6.8,aktif:true,gunler:[[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,2],[19,3],[20,3],[21,3],[22,0],[23,0],[24,0],[25,0],[26,0],[27,0],[28,0]]},E2:{makine:'KLEEMAN ELEK',sehir:'İSTANBUL',santiye:'ENTEGRE/GARAJ',tip:'ELEK',marka:'KLEEMAN',yil:2022,motor:10,rolanti:0.2,personel:11.2,rolanti_pct:2.5,aktif:true,gunler:[[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,2],[19,3],[20,2],[21,3],[22,0],[23,0],[24,0],[25,0],[26,0],[27,0],[28,0]]},K3:{makine:'METSO KONKASÖR LT1213S',sehir:'HATAY',santiye:'İSKENDERUN',tip:'KONKASÖR',marka:'METSO',yil:2024,motor:189,rolanti:18.0,personel:267.0,rolanti_pct:9.5,aktif:true,gunler:[[1,6],[2,11],[3,1],[4,11],[5,13],[6,12],[7,9],[8,0],[9,10],[10,7],[11,11],[12,9],[13,8],[14,0],[15,4],[16,9],[17,8],[18,9],[19,9],[20,10],[21,0],[22,9],[23,8],[24,9],[25,7],[26,8],[27,3],[28,8]]},E1:{makine:'METSO ELEK',sehir:'HATAY',santiye:'İSKENDERUN',tip:'ELEK',marka:'METSO',yil:2016,motor:29,rolanti:11.3,personel:34.0,rolanti_pct:39.1,aktif:true,gunler:[[1,2],[2,2],[3,0],[4,2],[5,2],[6,2],[7,2],[8,0],[9,2],[10,2],[11,2],[12,2],[13,2],[14,0],[15,0],[16,0],[17,0],[18,1],[19,2],[20,2],[21,0],[22,2],[23,2],[24,0],[25,0],[26,1],[27,0],[28,1]]},K1:{makine:'METSO KONKASÖR LT1213',sehir:'HATAY',santiye:'İSKENDERUN',tip:'KONKASÖR',marka:'METSO',yil:2015,motor:70,rolanti:2.2,personel:74.1,rolanti_pct:3.2,aktif:true,gunler:[[1,4],[2,4],[3,0],[4,4],[5,4],[6,4],[7,4],[8,0],[9,4],[10,0],[11,4],[12,0],[13,0],[14,0],[15,0],[16,4],[17,4],[18,4],[19,4],[20,4],[21,0],[22,4],[23,4],[24,4],[25,0],[26,0],[27,0],[28,0]]},B1:{makine:'KLEEMAN KONVEYOR',sehir:'HATAY',santiye:'İSKENDERUN',tip:'KONVEYOR',marka:'KLEEMAN',yil:2024,motor:180,rolanti:5.0,personel:207.7,rolanti_pct:2.8,aktif:true,gunler:[[1,6],[2,8],[3,0],[4,8],[5,10],[6,8],[7,8],[8,0],[9,8],[10,7],[11,10],[12,8],[13,8],[14,0],[15,4],[16,8],[17,7],[18,8],[19,8],[20,8],[21,0],[22,8],[23,8],[24,8],[25,7],[26,8],[27,3],[28,7]]},K7:{makine:'KLEEMAN EVO KONKASÖR ESKİ',sehir:'MARAŞ',santiye:'AHES-HASTANE',tip:'KONKASÖR',marka:'KLEEMAN',yil:2023,motor:58,rolanti:5.2,personel:100.0,rolanti_pct:9.1,aktif:true,gunler:[[1,0],[2,0],[3,0],[4,0],[5,4],[6,4],[7,4],[8,0],[9,4],[10,4],[11,0],[12,0],[13,4],[14,0],[15,0],[16,4],[17,4],[18,4],[19,4],[20,4],[21,0],[22,4],[23,0],[24,4],[25,4],[26,4],[27,4],[28,0]]},K8:{makine:'KLEEMAN MC110İ EVO2',sehir:'MARAŞ',santiye:'AHES-HASTANE',tip:'KONKASÖR',marka:'KLEEMAN',yil:2025,motor:121,rolanti:5.9,personel:138.5,rolanti_pct:4.9,aktif:true,gunler:[[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,0],[9,4],[10,4],[11,4],[12,4],[13,4],[14,0],[15,4],[16,4],[17,4],[18,4],[19,5],[20,5],[21,0],[22,5],[23,5],[24,5],[25,5],[26,5],[27,5],[28,5]]},E5:{makine:'KLEEMAN ELEK EVO',sehir:'MARAŞ',santiye:'AHES-HASTANE',tip:'ELEK',marka:'KLEEMAN',yil:2023,motor:0,rolanti:0,personel:0,rolanti_pct:0,aktif:false,gunler:Array.from({length:28},(_,i)=>[i+1,0])},K9:{makine:'KLEEMAN EVO KONKASÖR YENİ',sehir:'MARAŞ',santiye:'AHES-HASTANE',tip:'KONKASÖR',marka:'KLEEMAN',yil:2023,motor:165,rolanti:6.8,personel:206.5,rolanti_pct:4.1,aktif:true,gunler:[[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,0],[9,5],[10,5],[11,5],[12,5],[13,5],[14,0],[15,5],[16,5],[17,5],[18,5],[19,5],[20,5],[21,0],[22,5],[23,5],[24,5],[25,5],[26,5],[27,5],[28,5],[29,5]]},K2:{makine:'METSO KONKASÖR LT1213',sehir:'MARAŞ/HATAY',santiye:'AHES/İSKENDERUN',tip:'KONKASÖR',marka:'METSO',yil:2022,motor:128,rolanti:6.9,personel:138.5,rolanti_pct:5.4,aktif:true,gunler:[[1,4],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,0],[9,5],[10,5],[11,5],[12,5],[13,5],[14,0],[15,5],[16,5],[17,5],[18,5],[19,5],[20,5],[21,0],[22,5],[23,5],[24,0],[25,5],[26,5],[27,0],[28,0]]},E3:{makine:'MACC CLOSKY S80',sehir:'MARAŞ',santiye:'AHES-HASTANE',tip:'ELEK',marka:'MACC',yil:2016,motor:0,rolanti:0,personel:0,rolanti_pct:0,aktif:false,gunler:Array.from({length:28},(_,i)=>[i+1,0])},K6:{makine:'KLEEMAN SCALPER',sehir:'MARAŞ',santiye:'NURYOL',tip:'ELEK',marka:'KLEEMAN',yil:2023,motor:0,rolanti:0,personel:0,rolanti_pct:0,aktif:false,gunler:Array.from({length:28},(_,i)=>[i+1,0])}};
+const SEHIR_COL={'HATAY':'#f43f5e','MARAŞ':'#fb923c','MARAŞ/HATAY':'#fb923c','İSTANBUL':'#a78bfa','BURSA':'#34d399'};
+const TIP_COL={KONKASÖR:'#38bdf8',ELEK:'#fb923c',KONVEYOR:'#22d3a4'};
+function sehirCol(s){return SEHIR_COL[s]||'#536880';}
+Chart.defaults.color='#364a60';Chart.defaults.borderColor='#192030';
+Chart.defaults.font.family="'JetBrains Mono',monospace";Chart.defaults.font.size=10;
+const gc2='rgba(25,32,48,.8)';
+const kodlar=Object.keys(MAKINELER);
+var currentPeriod='2026';
+function round1(v){return Math.round(v*10)/10;}
+function getData(period){
+  if(period==='mar'){var r={};kodlar.forEach(function(k){var o=MAKINELER[k];var s=MAR_DATA[k]||{motor:0,rolanti:0,personel:0,rolanti_pct:0,aktif:false,gunler:[]};r[k]=Object.assign({},o,{motor:s.motor,rolanti:s.rolanti,personel:s.personel,rolanti_pct:s.rolanti_pct,aktif:s.aktif,gunler:s.gunler});});return r;}
+  if(period==='sub'){var r={};kodlar.forEach(function(k){var o=MAKINELER[k];var s=SUB_DATA[k]||{motor:0,rolanti:0,personel:0,rolanti_pct:0,aktif:false,gunler:[]};r[k]=Object.assign({},o,{motor:s.motor,rolanti:s.rolanti,personel:s.personel,rolanti_pct:s.rolanti_pct,aktif:s.aktif,gunler:s.gunler});});return r;}
+  if(period==='2026'){var r={};kodlar.forEach(function(k){var o=MAKINELER[k];var s=SUB_DATA[k]||{motor:0,rolanti:0,personel:0,rolanti_pct:0,aktif:false,gunler:[]};var m=MAR_DATA[k]||{motor:0,rolanti:0,personel:0,rolanti_pct:0,aktif:false,gunler:[]};var tm=o.motor+s.motor+m.motor;var tr=o.rolanti+s.rolanti+m.rolanti;var tp=o.personel+s.personel+m.personel;var gunler=o.gunler.slice(0,28).map(function(g){return[g[0],g[1]||0];}).concat(s.gunler.map(function(g){return[g[0]+28,g[1]||0];})).concat(m.gunler.map(function(g){return[g[0]+59,g[1]||0];}));r[k]={motor:round1(tm),rolanti:round1(tr),personel:round1(tp),rolanti_pct:tm>0?round1(tr/tm*100):0,aktif:tm>0,gunler:gunler,makine:o.makine,sehir:o.sehir,santiye:o.santiye,tip:o.tip,marka:o.marka,yil:o.yil};});return r;}
+  var r={};kodlar.forEach(function(k){r[k]=Object.assign({},MAKINELER[k]);});return r;
 }
-
-// ── GRAFİKLER ─────────────────────────────────────────────────────────────────
-const opts = {
-  responsive:true, maintainAspectRatio:false,
-  plugins:{ legend:{ display:false } },
-  scales:{
-    x:{ ticks:{ color:'#64748b', font:{ size:9 }, maxRotation:45, minRotation:30 }, grid:{ color:'#1e293b' } },
-    y:{ ticks:{ color:'#64748b', font:{ size:9 } }, grid:{ color:'#1e293b' } },
+var charts={};var secilenMakineler=['K3','B1','K9'];
+function updateKPI(period){
+  var D=getData(period);var aktifler=kodlar.filter(function(k){return D[k]&&D[k].aktif;});var pasifler=kodlar.filter(function(k){return !D[k]||!D[k].aktif;});
+  var topMotor=aktifler.reduce(function(s,k){return s+(D[k].motor||0);},0);var topRolanti=aktifler.reduce(function(s,k){return s+(D[k].rolanti||0);},0);var rolPct=topMotor>0?round1(topRolanti/topMotor*100):0;
+  var enAktif=aktifler.slice().sort(function(a,b){return(D[b].motor||0)-(D[a].motor||0);})[0];var kritikRol=aktifler.filter(function(k){return D[k].rolanti_pct>0;}).sort(function(a,b){return(D[b].rolanti_pct||0)-(D[a].rolanti_pct||0);})[0];
+  var donemLabel={'2026':'Ocak+Şubat+Mart','oca':'Ocak 2026','sub':'Şubat 2026','mar':'Mart 2026'}[period]||period;
+  document.getElementById('kpi-aktif-sub').textContent=aktifler.length+' aktif · '+pasifler.length+' pasif';
+  document.getElementById('kpi-motor').textContent=topMotor.toLocaleString('tr-TR');
+  document.getElementById('kpi-motor-sub').textContent='sa · '+donemLabel;
+  document.getElementById('kpi-rolanti').textContent=topRolanti.toFixed(1)+' sa';
+  document.getElementById('kpi-rolanti-sub').textContent='%'+rolPct+' oran · Filo geneli';
+  if(enAktif){document.getElementById('kpi-enaktif').textContent=enAktif;document.getElementById('kpi-enaktif').style.color=sehirCol(D[enAktif].sehir)||'var(--blue)';document.getElementById('kpi-enaktif-sub').textContent=(D[enAktif].motor||0)+' sa · '+(D[enAktif].makine||'').substring(0,18);}
+  if(kritikRol){document.getElementById('kpi-kritik').textContent=kritikRol;document.getElementById('kpi-kritik-sub').textContent='%'+(D[kritikRol].rolanti_pct||0)+' · '+(D[kritikRol].makine||'').substring(0,15);}
+  document.getElementById('kpi-pasif').textContent=pasifler.length;document.getElementById('kpi-pasif-sub').textContent=pasifler.map(function(k){return k;}).join(' · ')+' — 0 sa';
+}
+function setPeriod(period,btn){
+  currentPeriod=period;document.querySelectorAll('.period-tabs:first-of-type .ptab').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');
+  var etiket={'2026':'Ocak+Şubat+Mart 2026','oca':'Ocak 2026 (28 gün)','sub':'Şubat 2026 (31 gün)','mar':'Mart 2026 (31 gün)'};
+  document.getElementById('veri-info').textContent=etiket[period]||period;secilenMakineler=['K3','B1','K9'];
+  updateKPI(period);initCharts(period);buildRankLists(period);buildTable(period);buildKartlar(period);
+}
+function initCharts(period){
+  period=period||currentPeriod;var D=getData(period);
+  if(charts.motor)charts.motor.destroy();
+  charts.motor=new Chart(document.getElementById('chart-motor'),{type:'bar',data:{labels:kodlar,datasets:[{data:kodlar.map(k=>D[k]?D[k].motor:0),backgroundColor:kodlar.map(k=>sehirCol(D[k]?D[k].sehir:'')+'aa'),borderColor:kodlar.map(k=>sehirCol(D[k]?D[k].sehir:'')),borderWidth:1,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+' sa'}}},scales:{x:{ticks:{color:'#364a60',font:{size:10}},grid:{color:gc2}},y:{ticks:{color:'#364a60',font:{size:10},callback:v=>v+' sa'},grid:{color:gc2}}}}});
+  if(charts.rol)charts.rol.destroy();
+  const rolData=kodlar.map(k=>D[k]?D[k].rolanti_pct:0);
+  charts.rol=new Chart(document.getElementById('chart-rolanti'),{type:'bar',data:{labels:kodlar,datasets:[{data:rolData,backgroundColor:rolData.map(v=>v>20?'#f43f5eaa':v>10?'#fbbf24aa':'#22d3a4aa'),borderColor:rolData.map(v=>v>20?'#f43f5e':v>10?'#fbbf24':'#22d3a4'),borderWidth:1,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+'%'}}},scales:{x:{ticks:{color:'#364a60',font:{size:10}},grid:{color:gc2}},y:{ticks:{color:'#364a60',font:{size:10},callback:v=>v+'%'},grid:{color:gc2},suggestedMax:50}}}});
+  const sehirler={};kodlar.forEach(k=>{const s=(D[k]?D[k].sehir:'').split('/')[0];if(s)sehirler[s]=(sehirler[s]||0)+(D[k]?D[k].motor:0);});
+  if(charts.sehir)charts.sehir.destroy();
+  charts.sehir=new Chart(document.getElementById('chart-sehir'),{type:'doughnut',data:{labels:Object.keys(sehirler),datasets:[{data:Object.values(sehirler),backgroundColor:Object.keys(sehirler).map(s=>sehirCol(s)+'cc'),borderWidth:2,borderColor:'#0c1018'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:true,position:'right',labels:{color:'#536880',font:{size:10},boxWidth:10,padding:8}},tooltip:{callbacks:{label:c=>c.label+': '+c.raw+' sa'}}}}});
+  const tipler={};kodlar.forEach(k=>{const t=D[k]?D[k].tip:'';if(t)tipler[t]=(tipler[t]||0)+(D[k]?D[k].motor:0);});
+  if(charts.tip)charts.tip.destroy();
+  charts.tip=new Chart(document.getElementById('chart-tip'),{type:'doughnut',data:{labels:Object.keys(tipler),datasets:[{data:Object.values(tipler),backgroundColor:Object.keys(tipler).map(t=>TIP_COL[t]+'cc'||'#536880cc'),borderWidth:2,borderColor:'#0c1018'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:true,position:'right',labels:{color:'#536880',font:{size:10},boxWidth:10,padding:8}},tooltip:{callbacks:{label:c=>c.label+': '+c.raw+' sa'}}}}});
+  buildTrendChart();buildMakineSelector();
+}
+function makeTrendDatasets(periodKey,gunSay){
+  var D=getData(periodKey);var RENKLER=['#38bdf8','#f43f5e','#22d3a4','#fbbf24','#a78bfa','#fb923c'];
+  return secilenMakineler.map(function(k,i){var m=MAKINELER[k];var col=RENKLER[i%RENKLER.length];return{label:k+' – '+m.makine.substring(0,20),data:D[k]?D[k].gunler.slice(0,gunSay).map(function(g){return g[1]||0;}):[],borderColor:col,backgroundColor:'transparent',tension:.3,pointRadius:3,pointBackgroundColor:col,pointHoverRadius:5,borderWidth:2};});
+}
+function buildTrendChart(period){
+  period=period||currentPeriod;
+  if(period==='2026'){
+    document.getElementById('trend-tek').style.display='none';document.getElementById('trend-ozet').style.display='block';
+    if(charts.trendOca){charts.trendOca.destroy();charts.trendOca=null;}
+    charts.trendOca=new Chart(document.getElementById('chart-trend-oca'),{type:'line',data:{labels:Array.from({length:28},function(_,i){return(i+1).toString();}),datasets:makeTrendDatasets('oca',28)},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{color:'#536880',font:{size:9},boxWidth:8,padding:8}}},scales:{x:{ticks:{color:'#364a60',font:{size:8}},grid:{color:gc2}},y:{ticks:{color:'#364a60',font:{size:9},callback:function(v){return v+' sa';}},grid:{color:gc2},suggestedMin:0}}}});
+    if(charts.trendSub){charts.trendSub.destroy();charts.trendSub=null;}
+    charts.trendSub=new Chart(document.getElementById('chart-trend-sub'),{type:'line',data:{labels:Array.from({length:31},function(_,i){return(i+1).toString();}),datasets:makeTrendDatasets('sub',31)},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{color:'#536880',font:{size:9},boxWidth:8,padding:8}}},scales:{x:{ticks:{color:'#364a60',font:{size:8}},grid:{color:gc2}},y:{ticks:{color:'#364a60',font:{size:9},callback:function(v){return v+' sa';}},grid:{color:gc2},suggestedMin:0}}}});
+  } else {
+    document.getElementById('trend-tek').style.display='block';document.getElementById('trend-ozet').style.display='none';
+    var gunSay=period==='sub'?31:28;
+    if(charts.trend){charts.trend.destroy();charts.trend=null;}
+    charts.trend=new Chart(document.getElementById('chart-trend'),{type:'line',data:{labels:Array.from({length:gunSay},function(_,i){return(i+1).toString();}),datasets:makeTrendDatasets(period,gunSay)},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{color:'#536880',font:{size:10},boxWidth:10,padding:10}}},scales:{x:{ticks:{color:'#364a60',font:{size:9}},grid:{color:gc2}},y:{ticks:{color:'#364a60',font:{size:10},callback:function(v){return v+' sa';}},grid:{color:gc2},suggestedMin:0}}}});
   }
-};
-
-const kodlar  = ['K3','K1','B1','E1','K9','K2','K8','K7','K5','E4','K4','E2'];
-const ocakSa  = [189, 70, 180, 29, 165, 128, 121, 58, 71, 67, 11, 10];
-const tsOcak  = [94601,20742,5031,9085,51250,173858,106907,0,8767,59133,38008,56762];
-const tsSubat = [15436,5284,64557,328,348148,15317,46548,40825,27577,0,274500,0];
-const rolanti = [9.5,3.2,2.8,39.1,4.1,5.4,4.9,9.1,4.2,18.3,6.8,2.5];
-
-new Chart(document.getElementById('cSaat'), {
-  type:'bar',
-  data:{ labels:kodlar, datasets:[{
-    data:ocakSa,
-    backgroundColor: ocakSa.map((_,i) => kodlar[i]==='E1'?'#ef4444aa':'#3b82f6aa'),
-    borderColor:     ocakSa.map((_,i) => kodlar[i]==='E1'?'#ef4444'  :'#3b82f6'),
-    borderWidth:1, borderRadius:4,
-  }]},
-  options: opts,
-});
-
-new Chart(document.getElementById('cTs'), {
-  type:'bar',
-  data:{ labels:kodlar, datasets:[
-    { label:'Ocak',  data:tsOcak,  backgroundColor:'#3b82f688', borderRadius:3 },
-    { label:'Şubat', data:tsSubat, backgroundColor:'#8b5cf688', borderRadius:3 },
-  ]},
-  options:{ ...opts, plugins:{ legend:{ display:true, labels:{ color:'#94a3b8', font:{ size:10 } } } } },
-});
-
-new Chart(document.getElementById('cRol'), {
-  type:'bar',
-  data:{ labels:kodlar, datasets:[{
-    data:rolanti,
-    backgroundColor: rolanti.map(v => v>=20?'#ef4444aa':v>=10?'#f59e0baa':'#22c55eaa'),
-    borderColor:     rolanti.map(v => v>=20?'#ef4444'  :v>=10?'#f59e0b'  :'#22c55e'),
-    borderWidth:1, borderRadius:4,
-  }]},
-  options: opts,
-});
+}
+function buildMakineSelector(){
+  var RENKLER=['#38bdf8','#f43f5e','#22d3a4','#fbbf24','#a78bfa','#fb923c'];
+  var D2=getData(currentPeriod);
+  var el=document.getElementById('makine-selector');
+  el.innerHTML=kodlar.filter(k=>D2[k]&&D2[k].aktif).map(k=>{var idx=secilenMakineler.indexOf(k);var col=idx>=0?RENKLER[idx%RENKLER.length]:null;var st=col?'background:'+col+'22;color:'+col+';border-color:'+col:'';return '<button class="msel-btn '+(idx>=0?'active':'')+'" style="'+st+'" onclick="toggleMakine(\''+k+'\',this)">'+k+'</button>';}).join('');
+}
+function toggleMakine(kod,btn){var idx=secilenMakineler.indexOf(kod);if(idx>=0){secilenMakineler.splice(idx,1);}else if(secilenMakineler.length<6){secilenMakineler.push(kod);}buildMakineSelector();buildTrendChart(currentPeriod);}
+function buildRankLists(period){
+  period=period||currentPeriod;var D=getData(period);
+  function rankList(items,container,valFn,colFn,suffixFn){var vals=items.map(k=>valFn(k));var max=Math.max(...vals);var html='';items.forEach((k,i)=>{var v=vals[i];var col=colFn(v);var pct=max>0?v/max*100:0;var m=MAKINELER[k];html+='<div class="rank-item"><div class="rank-kod" style="color:'+sehirCol(m.sehir)+'">'+k+'</div><div class="rank-isim">'+m.makine.substring(0,18)+'</div><div class="rank-bar-outer"><div class="rank-bar-inner" style="width:'+pct+'%;background:'+col+'"></div></div><div class="rank-val" style="color:'+col+'">'+suffixFn(v)+'</div></div>';});document.getElementById(container).innerHTML=html;}
+  var aktifler=kodlar.filter(k=>D[k]&&D[k].aktif);
+  rankList([...aktifler].sort((a,b)=>(D[b]?D[b].motor:0)-(D[a]?D[a].motor:0)).slice(0,6),'top-motor',k=>(D[k]?D[k].motor:0),v=>'#22d3a4',v=>v+' sa');
+  rankList([...aktifler].sort((a,b)=>(D[b]?D[b].rolanti_pct:0)-(D[a]?D[a].rolanti_pct:0)).slice(0,6),'top-rolanti',k=>(D[k]?D[k].rolanti_pct:0),v=>v>20?'#f43f5e':v>10?'#fbbf24':'#22d3a4',v=>v+'%');
+  rankList([...aktifler].sort((a,b)=>(D[b]?D[b].personel:0)-(D[a]?D[a].personel:0)).slice(0,6),'top-personel',k=>(D[k]?D[k].personel:0),v=>'#a78bfa',v=>v+' sa');
+}
+function buildTable(period){
+  period=period||currentPeriod;var D=getData(period);var html='';
+  [...kodlar].sort((a,b)=>(D[b]?D[b].motor:0)-(D[a]?D[a].motor:0)).forEach(k=>{
+    var m=D[k]||MAKINELER[k];var col=sehirCol(m.sehir);var rCol=m.rolanti_pct>20?'var(--red)':m.rolanti_pct>10?'var(--yellow)':'var(--green)';
+    var durum=m.aktif?'<span style="background:rgba(34,211,164,.15);color:#99f6e4;font-family:\'JetBrains Mono\';font-size:10px;padding:2px 6px;border-radius:2px">AKTİF</span>':'<span style="background:rgba(244,63,94,.1);color:#fda4af;font-family:\'JetBrains Mono\';font-size:10px;padding:2px 6px;border-radius:2px">PASİF</span>';
+    html+='<tr><td><span style="font-family:\'JetBrains Mono\',monospace;font-size:12px;font-weight:700;color:'+col+'">'+k+'</span></td><td style="font-size:11px;color:var(--text)">'+m.makine+'</td><td><span style="font-size:10px;padding:1px 6px;border-radius:2px;background:'+(TIP_COL[m.tip]||'#536880')+'22;color:'+(TIP_COL[m.tip]||'#536880')+';font-family:\'JetBrains Mono\'">'+m.tip+'</span></td><td style="font-size:11px;color:'+col+'">'+m.sehir+'</td><td style="font-size:10px;color:var(--muted2)">'+m.santiye+'</td><td class="mono" style="color:var(--muted2)">'+m.yil+'</td><td class="mono" style="color:var(--green)">'+m.motor+'</td><td class="mono" style="color:var(--yellow)">'+m.rolanti+'</td><td class="mono" style="color:'+rCol+';font-weight:700">'+m.rolanti_pct+'%</td><td class="mono" style="color:var(--purple)">'+m.personel+'</td><td>'+durum+'</td></tr>';
+  });
+  document.getElementById('tablo-body').innerHTML=html;
+}
+function buildKartlar(period){
+  period=period||currentPeriod;var D=getData(period);var html='';
+  [...kodlar].sort((a,b)=>(D[b]?D[b].motor:0)-(D[a]?D[a].motor:0)).forEach(k=>{
+    var m=D[k]||MAKINELER[k];var col=sehirCol(m.sehir);var rCol=m.rolanti_pct>20?'var(--red)':m.rolanti_pct>10?'var(--yellow)':'var(--green)';
+    var barPct=Math.min(m.motor/200*100,100);var rolBarPct=Math.min(m.rolanti_pct/50*100,100);
+    html+='<div class="mak-kart '+(m.aktif?'':'pasif')+'" style="border-left-color:'+col+'"><div class="mk-head"><div><div class="mk-kod" style="color:'+col+'">'+k+'</div><div class="mk-isim">'+m.makine+'</div><div style="font-size:9px;color:var(--muted);margin-top:2px">'+m.marka+' · '+m.yil+' · '+m.sehir+'</div></div><span class="mk-badge" style="background:'+(m.aktif?col+'22':'rgba(244,63,94,.1)')+';color:'+(m.aktif?col:'#fda4af')+'">'+(m.aktif?m.motor+' SA':'PASİF')+'</span></div><div class="mk-metrics"><div class="mk-m"><div class="mk-ml">Motor</div><div class="mk-mv" style="color:var(--green)">'+m.motor+' sa</div></div><div class="mk-m"><div class="mk-ml">Rölanti</div><div class="mk-mv" style="color:'+rCol+'">'+m.rolanti+' sa</div></div><div class="mk-m"><div class="mk-ml">Rölanti %</div><div class="mk-mv" style="color:'+rCol+'">'+m.rolanti_pct+'%</div></div><div class="mk-m"><div class="mk-ml">Personel</div><div class="mk-mv" style="color:var(--purple)">'+m.personel+' sa</div></div><div class="mk-m"><div class="mk-ml">Tip</div><div class="mk-mv" style="color:'+(TIP_COL[m.tip]||'#536880')+';font-size:10px">'+m.tip+'</div></div><div class="mk-m"><div class="mk-ml">Şantiye</div><div class="mk-mv" style="font-size:9px;color:var(--muted2)">'+m.santiye.substring(0,12)+'</div></div></div><div class="mk-bar" style="margin-top:6px"><div class="mk-bf" style="width:'+barPct+'%;background:'+col+'"></div></div><div style="margin-top:4px"><div style="font-size:9px;color:var(--muted);margin-bottom:2px">Rölanti oranı</div><div class="rolanti-bar"><div class="rolanti-fill" style="width:'+rolBarPct+'%;background:'+rCol+'"></div></div></div></div>';
+  });
+  document.getElementById('mak-grid').innerHTML=html;
+}
+const MALIYET={B1:{makine:'KLEMAN KONVEYOR',tip:'KONVEYOR',sehir:'HATAY',oca_teknik:5031.24,oca_sarf:0,sub_teknik:64557.48,sub_sarf:0,mar_teknik:12142.93,mar_sarf:0},E1:{makine:'METSO ST4.89 ELEK',tip:'ELEK',sehir:'HATAY',oca_teknik:9085.50,oca_sarf:51750.00,sub_teknik:328.04,sub_sarf:0,mar_teknik:24150.59,mar_sarf:0},E2:{makine:'EVO KLEMAN ELEK MSC953',tip:'ELEK',sehir:'İSTANBUL',oca_teknik:56762.25,oca_sarf:0,sub_teknik:0,sub_sarf:0,mar_teknik:1046.50,mar_sarf:0},E3:{makine:'MC CLOSKY ELEK',tip:'ELEK',sehir:'HATAY',oca_teknik:0,oca_sarf:0,sub_teknik:0,sub_sarf:0,mar_teknik:11787.50,mar_sarf:0},E4:{makine:'KLEMAN ELEK MSC953',tip:'ELEK',sehir:'BURSA',oca_teknik:59133.77,oca_sarf:0,sub_teknik:0,sub_sarf:0,mar_teknik:0,mar_sarf:55717.50},E5:{makine:'MSC953I EVO KLEMAN ELEK',tip:'ELEK',sehir:'MARAŞ',oca_teknik:0,oca_sarf:0,sub_teknik:0,sub_sarf:0,mar_teknik:0,mar_sarf:0},K1:{makine:'METSO KONKASÖR LT1213',tip:'KONKASÖR',sehir:'HATAY',oca_teknik:20742.30,oca_sarf:0,sub_teknik:5284.05,sub_sarf:0,mar_teknik:636693.02,mar_sarf:0},K2:{makine:'METSO KONKASÖR LT1213',tip:'KONKASÖR',sehir:'MARAŞ',oca_teknik:173858.02,oca_sarf:74750.00,sub_teknik:15317.14,sub_sarf:0,mar_teknik:0,mar_sarf:113850.00},K3:{makine:'METSO KONKASÖR LT1213S',tip:'KONKASÖR',sehir:'HATAY',oca_teknik:94601.29,oca_sarf:0,sub_teknik:15436.66,sub_sarf:0,mar_teknik:14602.71,mar_sarf:15410.00},K4:{makine:'METSO KONKASÖR ÇENELİ',tip:'KONKASÖR',sehir:'İSTANBUL',oca_teknik:38008.00,oca_sarf:0,sub_teknik:274500.90,sub_sarf:0,mar_teknik:2070.00,mar_sarf:0},K5:{makine:'KLEMAN KONKASÖR MR130I PRO',tip:'KONKASÖR',sehir:'BURSA',oca_teknik:8767.20,oca_sarf:91870.00,sub_teknik:27577.00,sub_sarf:0,mar_teknik:0,mar_sarf:0},K6:{makine:'MSS802I EVO KLEMAN SKAYPER',tip:'ELEK',sehir:'MARAŞ',oca_teknik:1897.50,oca_sarf:0,sub_teknik:0,sub_sarf:0,mar_teknik:0,mar_sarf:0},K7:{makine:'KLEEMAN KONKASÖR MR130I EVO2',tip:'KONKASÖR',sehir:'MARAŞ',oca_teknik:0,oca_sarf:0,sub_teknik:40825.00,sub_sarf:0,mar_teknik:140050.88,mar_sarf:0},K8:{makine:'KLEEMAN KONKASÖR MC110I EVO2',tip:'KONKASÖR',sehir:'MARAŞ',oca_teknik:106907.92,oca_sarf:0,sub_teknik:46548.45,sub_sarf:0,mar_teknik:16525.00,mar_sarf:0},K9:{makine:'KLEEMAN KONKASÖR MR130I EVO2',tip:'KONKASÖR',sehir:'MARAŞ',oca_teknik:51250.00,oca_sarf:0,sub_teknik:0,sub_sarf:348148.18,mar_teknik:0,mar_sarf:0}};
+function malToplam(k,d){var m=MALIYET[k];if(!m)return 0;if(d==='oca')return m.oca_teknik+m.oca_sarf;if(d==='sub')return m.sub_teknik+m.sub_sarf;if(d==='mar')return(m.mar_teknik||0)+(m.mar_sarf||0);return m.oca_teknik+m.oca_sarf+m.sub_teknik+m.sub_sarf+(m.mar_teknik||0)+(m.mar_sarf||0);}
+function malTeknik(k,d){var m=MALIYET[k];if(!m)return 0;if(d==='oca')return m.oca_teknik;if(d==='sub')return m.sub_teknik;if(d==='mar')return m.mar_teknik||0;return m.oca_teknik+m.sub_teknik+(m.mar_teknik||0);}
+function malSarf(k,d){var m=MALIYET[k];if(!m)return 0;if(d==='oca')return m.oca_sarf;if(d==='sub')return m.sub_sarf;if(d==='mar')return m.mar_sarf||0;return m.oca_sarf+m.sub_sarf+(m.mar_sarf||0);}
+function tlFmt(v){return '₺'+Math.round(v).toLocaleString('tr-TR');}
+var maliyetAcik=false;var malCharts={};var currentMalPeriod='2026';
+function toggleMaliyet(){maliyetAcik=!maliyetAcik;var panel=document.getElementById('maliyet-panel');var btn=document.getElementById('maliyet-toggle');panel.classList.toggle('open',maliyetAcik);btn.classList.toggle('maliyet-toggle-active',maliyetAcik);if(maliyetAcik)buildMaliyetPanel(currentMalPeriod);}
+function setMalPeriod(period,btn){currentMalPeriod=period;document.querySelectorAll('#maliyet-panel .ptab').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');buildMaliyetPanel(period);}
+function buildMaliyetPanel(period){
+  period=period||currentMalPeriod;var mkodlar=Object.keys(MALIYET);var donemEtiket={'2026':'Ocak+Şubat+Mart 2026','oca':'Ocak 2026','sub':'Şubat 2026','mar':'Mart 2026'}[period]||period;
+  document.getElementById('mal-donem-tag').textContent=donemEtiket;
+  var toplamMaliyet=mkodlar.reduce(function(s,k){return s+malToplam(k,period);},0);var toplamTeknik=mkodlar.reduce(function(s,k){return s+malTeknik(k,period);},0);var toplamSarf=mkodlar.reduce(function(s,k){return s+malSarf(k,period);},0);
+  var enPahali=mkodlar.slice().sort(function(a,b){return malToplam(b,period)-malToplam(a,period);})[0];
+  var aktifKodlar=mkodlar.filter(function(k){return malToplam(k,period)>0;}).sort(function(a,b){return malToplam(b,period)-malToplam(a,period);});
+  var Dperiod=getData(period==='2026'?'2026':period);var toplamMotor=aktifKodlar.reduce(function(s,k){return s+(Dperiod[k]?Dperiod[k].motor:0);},0);var ortSaat=toplamMotor>0?Math.round(toplamMaliyet/toplamMotor):0;
+  document.getElementById('mkpi-l1').textContent={'2026':'2026 Toplam','oca':'Ocak Toplam','sub':'Şubat Toplam','mar':'Mart Toplam'}[period];
+  document.getElementById('mkpi-donem-toplam').textContent=tlFmt(toplamMaliyet);document.getElementById('mkpi-teknik').textContent=tlFmt(toplamTeknik);document.getElementById('mkpi-sarf').textContent=tlFmt(toplamSarf);
+  document.getElementById('mkpi-en-pahali').textContent=enPahali||'—';document.getElementById('mkpi-en-pahali-sub').textContent=enPahali?tlFmt(malToplam(enPahali,period)):'—';document.getElementById('mkpi-ort-saat').textContent=ortSaat>0?'₺'+ortSaat.toLocaleString('tr-TR'):'—';
+  var isOzet=period==='2026';
+  document.getElementById('mal-chart1-title').textContent=isOzet?'Makine Bazlı Maliyet — 2026 Toplam':'Makine Bazlı Maliyet — '+donemEtiket;
+  document.getElementById('mal-chart1-desc').textContent=isOzet?'Ocak+Şubat+Mart teknik+sarf · ₺':'Teknik gider + Sarf malzeme · ₺';
+  if(malCharts.makine)malCharts.makine.destroy();
+  var makDatasets=isOzet?[{label:'Ocak Teknik',data:aktifKodlar.map(function(k){return MALIYET[k].oca_teknik;}),backgroundColor:'rgba(56,189,248,.7)',borderColor:'#38bdf8',borderWidth:1,borderRadius:2,stack:'oca'},{label:'Ocak Sarf',data:aktifKodlar.map(function(k){return MALIYET[k].oca_sarf;}),backgroundColor:'rgba(192,132,252,.7)',borderColor:'#c084fc',borderWidth:1,borderRadius:2,stack:'oca'},{label:'Şubat Teknik',data:aktifKodlar.map(function(k){return MALIYET[k].sub_teknik;}),backgroundColor:'rgba(251,191,36,.7)',borderColor:'#fbbf24',borderWidth:1,borderRadius:2,stack:'sub'},{label:'Şubat Sarf',data:aktifKodlar.map(function(k){return MALIYET[k].sub_sarf;}),backgroundColor:'rgba(251,146,60,.7)',borderColor:'#fb923c',borderWidth:1,borderRadius:2,stack:'sub'},{label:'Mart Teknik',data:aktifKodlar.map(function(k){return MALIYET[k].mar_teknik||0;}),backgroundColor:'rgba(52,211,153,.7)',borderColor:'#34d399',borderWidth:1,borderRadius:2,stack:'mar'},{label:'Mart Sarf',data:aktifKodlar.map(function(k){return MALIYET[k].mar_sarf||0;}),backgroundColor:'rgba(94,234,212,.7)',borderColor:'#5eead4',borderWidth:1,borderRadius:2,stack:'mar'}]:[{label:'Teknik Gider',data:aktifKodlar.map(function(k){return malTeknik(k,period);}),backgroundColor:aktifKodlar.map(function(k){return sehirCol(MALIYET[k].sehir)+'99';}),borderColor:aktifKodlar.map(function(k){return sehirCol(MALIYET[k].sehir);}),borderWidth:1,borderRadius:3},{label:'Sarf Malz.',data:aktifKodlar.map(function(k){return malSarf(k,period);}),backgroundColor:'rgba(192,132,252,.6)',borderColor:'#c084fc',borderWidth:1,borderRadius:3}];
+  malCharts.makine=new Chart(document.getElementById('chart-mal-makine'),{type:'bar',data:{labels:aktifKodlar,datasets:makDatasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{color:'#536880',font:{size:9},boxWidth:8,padding:8}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+tlFmt(c.raw);}}}},scales:{x:{stacked:isOzet,ticks:{color:'#364a60',font:{size:10}},grid:{color:gc2}},y:{stacked:isOzet,ticks:{color:'#364a60',font:{size:10},callback:function(v){return '₺'+Math.round(v/1000)+'K';}},grid:{color:gc2}}}}});
+  document.getElementById('mal-chart2-title').textContent='Şantiye Bazlı Maliyet — '+donemEtiket;
+  document.getElementById('mal-chart2-desc').textContent=isOzet?'Ocak/Şubat/Mart gruplu · Şehir rengi':'Şehre göre toplam · ₺';
+  var sehirler={};mkodlar.forEach(function(k){var s=(MALIYET[k].sehir||'').split('/')[0];if(!sehirler[s])sehirler[s]={oca:0,sub:0,mar:0};sehirler[s].oca+=malToplam(k,'oca');sehirler[s].sub+=malToplam(k,'sub');sehirler[s].mar+=malToplam(k,'mar');});
+  var sehirKeys=Object.keys(sehirler).filter(function(s){return sehirler[s].oca+sehirler[s].sub+sehirler[s].mar>0;});
+  if(malCharts.santiye)malCharts.santiye.destroy();
+  var sehirDatasets=isOzet?[{label:'Ocak',data:sehirKeys.map(function(s){return sehirler[s].oca;}),backgroundColor:sehirKeys.map(function(s){return sehirCol(s)+'99';}),borderColor:sehirKeys.map(function(s){return sehirCol(s);}),borderWidth:1,borderRadius:3},{label:'Şubat',data:sehirKeys.map(function(s){return sehirler[s].sub;}),backgroundColor:sehirKeys.map(function(s){return sehirCol(s)+'55';}),borderColor:sehirKeys.map(function(s){return sehirCol(s);}),borderWidth:1,borderRadius:3},{label:'Mart',data:sehirKeys.map(function(s){return sehirler[s].mar;}),backgroundColor:sehirKeys.map(function(s){return sehirCol(s)+'33';}),borderColor:sehirKeys.map(function(s){return sehirCol(s);}),borderWidth:1,borderRadius:3}]:[{label:donemEtiket,data:sehirKeys.map(function(s){return mkodlar.filter(function(k){return(MALIYET[k].sehir||'').split('/')[0]===s;}).reduce(function(sum,k){return sum+malToplam(k,period);},0);}),backgroundColor:sehirKeys.map(function(s){return sehirCol(s)+'bb';}),borderColor:sehirKeys.map(function(s){return sehirCol(s);}),borderWidth:1,borderRadius:4}];
+  malCharts.santiye=new Chart(document.getElementById('chart-mal-santiye'),{type:'bar',data:{labels:sehirKeys,datasets:sehirDatasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:isOzet,position:'top',labels:{color:'#536880',font:{size:9},boxWidth:8,padding:8}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+tlFmt(c.raw);}}}},scales:{x:{ticks:{color:'#364a60',font:{size:12,weight:'600'}},grid:{color:gc2}},y:{ticks:{color:'#364a60',font:{size:10},callback:function(v){return '₺'+Math.round(v/1000)+'K';}},grid:{color:gc2}}}}});
+  document.getElementById('mal-chart3-desc').textContent='Konkasör · Elek · Konveyor · '+donemEtiket;
+  var tipler2={};mkodlar.forEach(function(k){var t=MALIYET[k].tip||'';if(!tipler2[t])tipler2[t]=0;tipler2[t]+=malToplam(k,period);});
+  var tipKeys=Object.keys(tipler2).filter(function(t){return tipler2[t]>0;});
+  if(malCharts.tip)malCharts.tip.destroy();
+  malCharts.tip=new Chart(document.getElementById('chart-mal-tip'),{type:'doughnut',data:{labels:tipKeys,datasets:[{data:tipKeys.map(function(t){return tipler2[t];}),backgroundColor:tipKeys.map(function(t){return(TIP_COL[t]||'#536880')+'cc';}),borderWidth:2,borderColor:'#0c1018'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:true,position:'right',labels:{color:'#536880',font:{size:10},boxWidth:10,padding:8}},tooltip:{callbacks:{label:function(c){return c.label+': '+tlFmt(c.raw);}}}}}});
+  var saatBasi=aktifKodlar.map(function(k){var dp=getData(period==='2026'?'2026':period);var motor=dp[k]?dp[k].motor:0;return motor>0?Math.round(malToplam(k,period)/motor):0;});
+  if(malCharts.saat)malCharts.saat.destroy();
+  malCharts.saat=new Chart(document.getElementById('chart-mal-saat'),{type:'bar',data:{labels:aktifKodlar,datasets:[{data:saatBasi,backgroundColor:saatBasi.map(function(v){return v>5000?'rgba(244,63,94,.7)':v>2000?'rgba(251,191,36,.7)':'rgba(34,211,164,.7)';}),borderColor:saatBasi.map(function(v){return v>5000?'#f43f5e':v>2000?'#fbbf24':'#22d3a4';}),borderWidth:1,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '₺'+c.raw.toLocaleString('tr-TR')+'/sa';}}}},scales:{x:{ticks:{color:'#364a60',font:{size:10}},grid:{color:gc2}},y:{ticks:{color:'#364a60',font:{size:10},callback:function(v){return '₺'+Math.round(v/1000)+'K';}},grid:{color:gc2}}}}});
+  var ozetExtra=document.getElementById('mal-ozet-extra');ozetExtra.style.display=isOzet?'block':'none';
+  if(isOzet){
+    if(malCharts.ozet)malCharts.ozet.destroy();
+    var ozetKodlar=mkodlar.filter(function(k){return malToplam(k,'2026')>0;}).sort(function(a,b){return malToplam(b,'2026')-malToplam(a,'2026');});
+    malCharts.ozet=new Chart(document.getElementById('chart-mal-ozet'),{type:'bar',data:{labels:ozetKodlar,datasets:[{label:'Ocak',data:ozetKodlar.map(function(k){return malToplam(k,'oca');}),backgroundColor:'rgba(56,189,248,.7)',borderColor:'#38bdf8',borderWidth:1,borderRadius:3},{label:'Şubat',data:ozetKodlar.map(function(k){return malToplam(k,'sub');}),backgroundColor:'rgba(251,191,36,.7)',borderColor:'#fbbf24',borderWidth:1,borderRadius:3},{label:'Mart',data:ozetKodlar.map(function(k){return malToplam(k,'mar');}),backgroundColor:'rgba(52,211,153,.7)',borderColor:'#34d399',borderWidth:1,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{color:'#536880',font:{size:9},boxWidth:8,padding:8}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+tlFmt(c.raw);}}}},scales:{x:{ticks:{color:'#364a60',font:{size:10}},grid:{color:gc2}},y:{ticks:{color:'#364a60',font:{size:10},callback:function(v){return '₺'+Math.round(v/1000)+'K';}},grid:{color:gc2}}}}});
+  }
+  document.getElementById('mal-tablo-title').textContent='Maliyet Detay Tablosu — '+donemEtiket;
+  var theadHtml;
+  if(isOzet){theadHtml='<tr><th>Kod</th><th>Makine</th><th>Tip</th><th>Şehir</th><th class="r">Oca Teknik</th><th class="r">Oca Sarf</th><th class="r">Oca Top.</th><th class="r">Şub Teknik</th><th class="r">Şub Sarf</th><th class="r">Şub Top.</th><th class="r">Mar Teknik</th><th class="r">Mar Sarf</th><th class="r">Mar Top.</th><th class="r">2026 Top.</th><th class="r">₺/sa</th></tr>';}
+  else{var dLabel={'oca':'Ocak','sub':'Şubat','mar':'Mart'}[period]||'Dönem';theadHtml='<tr><th>Kod</th><th>Makine</th><th>Tip</th><th>Şehir</th><th class="r">'+dLabel+' Teknik</th><th class="r">'+dLabel+' Sarf</th><th class="r">'+dLabel+' Toplam</th><th class="r">₺/sa</th></tr>';}
+  document.getElementById('mal-tablo-thead').innerHTML=theadHtml;
+  var html='';var tablo_kodlar=isOzet?mkodlar.filter(function(k){return malToplam(k,'2026')>0;}).sort(function(a,b){return malToplam(b,'2026')-malToplam(a,'2026');}):aktifKodlar;
+  tablo_kodlar.forEach(function(k){var m=MALIYET[k];var col=sehirCol(m.sehir);var dp=getData(period==='2026'?'2026':period);var motor=dp[k]?dp[k].motor:0;
+    if(isOzet){var ocaTek=m.oca_teknik,ocaSarf=m.oca_sarf,ocaTpl=ocaTek+ocaSarf;var subTek=m.sub_teknik,subSarf=m.sub_sarf,subTpl=subTek+subSarf;var marTek=m.mar_teknik||0,marSarf=m.mar_sarf||0,marTpl=marTek+marSarf;var toplam=ocaTpl+subTpl+marTpl;var saat=motor>0?Math.round(toplam/motor):0;html+='<tr><td><span style="font-family:\'JetBrains Mono\',monospace;font-size:12px;font-weight:700;color:'+col+'">'+k+'</span></td><td style="font-size:11px">'+m.makine+'</td><td><span style="font-size:10px;padding:1px 6px;border-radius:2px;background:'+(TIP_COL[m.tip]||'#536880')+'22;color:'+(TIP_COL[m.tip]||'#536880')+';font-family:\'JetBrains Mono\'">'+m.tip+'</span></td><td style="font-size:11px;color:'+col+'">'+m.sehir+'</td><td class="mono" style="color:var(--blue)">'+(ocaTek>0?tlFmt(ocaTek):'—')+'</td><td class="mono" style="color:var(--purple)">'+(ocaSarf>0?tlFmt(ocaSarf):'—')+'</td><td class="mono" style="color:var(--yellow);font-weight:700">'+(ocaTpl>0?tlFmt(ocaTpl):'—')+'</td><td class="mono" style="color:var(--blue)">'+(subTek>0?tlFmt(subTek):'—')+'</td><td class="mono" style="color:var(--purple)">'+(subSarf>0?tlFmt(subSarf):'—')+'</td><td class="mono" style="color:var(--yellow);font-weight:700">'+(subTpl>0?tlFmt(subTpl):'—')+'</td><td class="mono" style="color:var(--blue)">'+(marTek>0?tlFmt(marTek):'—')+'</td><td class="mono" style="color:var(--purple)">'+(marSarf>0?tlFmt(marSarf):'—')+'</td><td class="mono" style="color:var(--green);font-weight:700">'+(marTpl>0?tlFmt(marTpl):'—')+'</td><td class="mono" style="color:var(--orange);font-weight:700">'+(toplam>0?tlFmt(toplam):'—')+'</td><td class="mono" style="color:'+(saat>5000?'var(--red)':saat>2000?'var(--yellow)':'var(--green)')+'">'+( saat>0?'₺'+saat.toLocaleString('tr-TR'):'—')+'</td></tr>';}
+    else{var tek=malTeknik(k,period),sarf2=malSarf(k,period),tpl=tek+sarf2;var saat2=motor>0?Math.round(tpl/motor):0;html+='<tr><td><span style="font-family:\'JetBrains Mono\',monospace;font-size:12px;font-weight:700;color:'+col+'">'+k+'</span></td><td style="font-size:11px">'+m.makine+'</td><td><span style="font-size:10px;padding:1px 6px;border-radius:2px;background:'+(TIP_COL[m.tip]||'#536880')+'22;color:'+(TIP_COL[m.tip]||'#536880')+';font-family:\'JetBrains Mono\'">'+m.tip+'</span></td><td style="font-size:11px;color:'+col+'">'+m.sehir+'</td><td class="mono" style="color:var(--blue)">'+(tek>0?tlFmt(tek):'—')+'</td><td class="mono" style="color:var(--purple)">'+(sarf2>0?tlFmt(sarf2):'—')+'</td><td class="mono" style="color:var(--yellow);font-weight:700">'+(tpl>0?tlFmt(tpl):'—')+'</td><td class="mono" style="color:'+(saat2>5000?'var(--red)':saat2>2000?'var(--yellow)':'var(--green)')+'">'+( saat2>0?'₺'+saat2.toLocaleString('tr-TR'):'—')+'</td></tr>';}
+  });
+  document.getElementById('mal-tablo-body').innerHTML=html;
+}
+updateKPI('2026');initCharts('2026');buildRankLists('2026');buildTable('2026');buildKartlar('2026');
 </script>
 </body>
 </html>
