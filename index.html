@@ -80,11 +80,12 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .lok strong{color:#94a3b8}
 .ts-cost{font-size:12px;font-weight:600;color:var(--blue)}
 
-.sidebar{width:340px;flex-shrink:0;border-left:1px solid var(--border);padding:20px;
+.sidebar{width:380px;flex-shrink:0;border-left:1px solid var(--border);padding:20px;
          display:flex;flex-direction:column;gap:20px}
 .chart-wrap{background:var(--surface);border-radius:10px;padding:16px}
 .chart-title{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:12px;
              text-transform:uppercase;letter-spacing:.5px}
+.chart-canvas-wrap{position:relative;height:190px;width:100%}
 
 .sehir-tbl{width:100%;border-collapse:collapse;font-size:12px}
 .sehir-tbl th{color:var(--muted);font-weight:600;padding:6px 8px;text-align:left;border-bottom:1px solid var(--border)}
@@ -411,11 +412,11 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
   <aside class="sidebar">
     <div class="chart-wrap">
       <div class="chart-title">Ocak Çalışma Saatleri</div>
-      <canvas id="cSaat" height="200"></canvas>
+      <div class="chart-canvas-wrap"><canvas id="cSaat"></canvas></div>
     </div>
     <div class="chart-wrap">
       <div class="chart-title">TS Maliyeti — Oca + Şub (TL)</div>
-      <canvas id="cTs" height="230"></canvas>
+      <div class="chart-canvas-wrap" style="height:210px"><canvas id="cTs"></canvas></div>
     </div>
     <div class="chart-wrap">
       <div class="chart-title">Şehir Bazlı Özet — Ocak 2026</div>
@@ -431,7 +432,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     </div>
     <div class="chart-wrap">
       <div class="chart-title">Rölanti Oranı — Ocak (%)</div>
-      <canvas id="cRol" height="200"></canvas>
+      <div class="chart-canvas-wrap"><canvas id="cRol"></canvas></div>
     </div>
   </aside>
 </div>
@@ -468,8 +469,8 @@ const opts = {
   responsive:true, maintainAspectRatio:false,
   plugins:{ legend:{ display:false } },
   scales:{
-    x:{ ticks:{ color:'#64748b', font:{ size:10 } }, grid:{ color:'#1e293b' } },
-    y:{ ticks:{ color:'#64748b', font:{ size:10 } }, grid:{ color:'#1e293b' } },
+    x:{ ticks:{ color:'#64748b', font:{ size:9 }, maxRotation:45, minRotation:30 }, grid:{ color:'#1e293b' } },
+    y:{ ticks:{ color:'#64748b', font:{ size:9 } }, grid:{ color:'#1e293b' } },
   }
 };
 
